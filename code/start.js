@@ -12,7 +12,7 @@ export class Start {
 
     test() {
         const testInstance = new test(30, 1);
-        testInstance.draw(contextInstance.get("canvasController").ctx);
+        testInstance.draw();
 
         contextInstance.setUpdate('testInstance', testInstance);
     }

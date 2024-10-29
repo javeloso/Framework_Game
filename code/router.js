@@ -36,6 +36,6 @@ window.onload = () => {
 
 };
 
-keyboardController.onKeyPress("t", () => {
-  console.log("La tecla T fue presionada");
+keyboardController.onKeyPress("L", () => {
+    console.log("a");
 });
