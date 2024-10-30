@@ -34,11 +34,14 @@ export class CharacterController {
     this.lposY = this.posY;
 
     // Actualiza la posición actual
-    this.posX += deltaX;
-    this.posY += deltaY;
-
+    if (contextInstance.get("mapController").isTileWalkable(this.posX + deltaX, this.posY + deltaY)) {
+      this.posX += deltaX;
+      this.posY += deltaY;
+    }
+    
     // Llama al callback para actualizar el dibujo del personaje
     this.onMoveCallback();
+    contextInstance.get("mapController").drawLastTile(this.posX, this.posY);
   }
 
   // Obtiene la posición del tile adyacente en la dirección previa
