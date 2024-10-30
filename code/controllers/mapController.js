@@ -12,9 +12,73 @@ class MapController {
     return instance;
   }
 
+
+  /*
+  * drawTile(x, y)
+  * Dibuja el tile correspondiente del mapa en ñas coordenadas x, y
+  * 
+  * @param {number} x - Coordenada x del tile
+  * @param {number} y - Coordenada y del tile
+  * @returns {void}
+  */
+
+  drawTile(x, y) {
+    const tileSize = this.map.tilewidth;
+    const scaledTileSize = tileSize * this.scale;
+    const tilesPerRow = this.tileset.width / tileSize;
+
+    this.map.layers.forEach((layer) => {
+      if (layer.type === "tilelayer") {
+        layer.chunks.forEach((chunk) => {
+          const {
+            x: chunkX,
+            y: chunkY,
+            width: chunkWidth,
+            height: chunkHeight,
+          } = chunk;
+          const tileData = chunk.data;
+
+          tileData.forEach((tileId, index) => {
+            if (tileId !== 0) {
+              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
+              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
+
+              const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
+              const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
+
+              if (canvasX === x * tileSize * this.scale && canvasY === y * tileSize * this.scale) {
+                this.ctx.drawImage(
+                  this.tileset,
+                  tilesetX,
+                  tilesetY,
+                  tileSize,
+                  tileSize,
+                  canvasX,
+                  canvasY,
+                  scaledTileSize,
+                  scaledTileSize
+                );
+              }
+            }
+          });
+        });
+      } else {
+        console.warn(`Layer ${layer.name} skipped. Type: ${layer.type}`);
+      }
+    });
+  }
+
+  /*
+  * drawMap(scale = 1)
+  * Dibuja el mapa en el canvas
+  * 
+  * @param {number} scale - Escala del mapa
+  * @returns {void}
+  */
+
   drawMap(scale = 1) {
     const tileSize = this.map.tilewidth;
-    const scaledTileSize = tileSize * scale;
+    const scaledTileSize = tileSize * this.scale;
     const tilesPerRow = this.tileset.width / tileSize;
 
     this.map.layers.forEach((layer) => {
@@ -31,7 +95,7 @@ class MapController {
           tileData.forEach((tileId, index) => {
             if (tileId !== 0) {
               const canvasX = (chunkX + (index % chunkWidth)) * tileSize * scale;
-              const canvasY = (chunkY + Math.floor(index / chunkWidth)) * tileSize * scale;
+              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * scale;
 
               const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
               const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
@@ -56,48 +120,13 @@ class MapController {
     });
   }
 
-  redrawTile(x, y) {
-    const tileSize = this.map.tilewidth;
-    const scaledTileSize = tileSize * this.scale;
-    const tilesPerRow = this.tileset.width / tileSize;
-
-    const tileLayer = this.map.layers.find(layer => layer.type === "tilelayer");
-
-    if (!tileLayer) {
-      console.warn("No tile layer found in map.");
-      return;
-    }
-
-    const tileData = tileLayer.chunks.flatMap(chunk => chunk.data);
-    const chunkWidth = tileLayer.chunks[0].width;
-
-    const tileIndex = x + y * chunkWidth;
-    const tileId = tileData[tileIndex];
-
-    if (tileId !== 0) {
-      const canvasX = x * scaledTileSize;
-      const canvasY = y * scaledTileSize;
-
-      const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
-      const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
-
-      // Limpia el cuadrado en el canvas antes de redibujar
-      this.ctx.clearRect(canvasX, canvasY, scaledTileSize, scaledTileSize);
-
-      // Dibuja la nueva imagen en el cuadrado especificado
-      this.ctx.drawImage(
-        this.tileset,
-        tilesetX,
-        tilesetY,
-        tileSize,
-        tileSize,
-        canvasX,
-        canvasY,
-        scaledTileSize,
-        scaledTileSize
-      );
-    }
-  }
+  /*
+  * loadMap(mapName)
+  * Carga el mapa desde el servidor
+  * 
+  * @param {string} mapName - Nombre del mapa a cargar
+  * @returns {Promise} - Promesa que se resuelve con los datos del mapa
+  */
 
   async loadMap(mapName) {
     const response = await fetch(
@@ -107,6 +136,16 @@ class MapController {
     return mapData;
   }
 
+  /*
+  * init(mapName, tileset, scale = 3)
+  * Inicializa el mapa
+  * 
+  * @param {string} mapName - Nombre del mapa a cargar
+  * @param {string} tileset - Nombre del tileset a cargar
+  * @param {number} scale - Escala del mapa
+  * @returns {Promise} - Promesa que se resuelve cuando el mapa ha sido cargado
+  */
+ 
   async init(mapName, tileset, scale = 3) {
     this.scale = scale;
     this.map = await this.loadMap(mapName);

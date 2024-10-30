@@ -1,53 +1,49 @@
-import keyboardController from "../controllers/keyboardController.js";
 import contextInstance from "../core/globalContext.js";
-
+import { CharacterController } from "../controllers/characterController.js";
 import { drawableObject } from "./drawableObject.js";
 
 export class test extends drawableObject {
   constructor(posX, posY) {
     super();
-    this.posX = posX;
-    this.posY = posY;
-    this.lposX = posX; // Inicializar las propiedades lposX y lposY
-    this.lposY = posY;
-
-    keyboardController.onKeyPress("a", () => {
-      this.lposX = this.posX;
-      this.lposY = this.posY;
-      this.posX -= 1;
-      this.draw();
-    });
-    keyboardController.onKeyPress("d", () => {
-        this.lposX = this.posX;
-        this.lposY = this.posY;
-      this.posX += 1;
-      this.draw();
-    });
-    keyboardController.onKeyPress("w", () => {
-        this.lposX = this.posX;
-        this.lposY = this.posY;
-      this.posY -= 1;
-      this.draw();
-    });
-    keyboardController.onKeyPress("s", () => {
-        this.lposX = this.posX;
-        this.lposY = this.posY;
-      this.posY += 1;
-      this.draw();
-    });
+    this.characterController = new CharacterController(posX, posY, () => this.draw());
   }
 
   draw() {
-    contextInstance.get("mapController").redrawTile(this.lposX, this.lposY);
+    const { posX, posY, lposX, lposY } = this.characterController.getPosition();
+    // Dibuja el tile anterior
+    contextInstance.get("mapController").drawTile(lposX, lposY);
+
+    // Dibuja el tile actual
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(
-      this.posX * this.scale * 16,
-      this.posY * this.scale * 16,
+      posX * this.scale * 16,
+      posY * this.scale * 16,
       this.scale * 16,
       this.scale * 16
     );
-    console.log(this.posX + " " + this.posY + " " + this.lposX + " " + this.lposY);
+
+    this.testLookDirection(posX, posY);
   }
+  
+  testLookDirection(posX, posY) {
+    // Dibuja la dirección
+    this.ctx.fillStyle = "red";
+    switch (this.characterController.getDirection()) {
+      case "left":
+        this.ctx.fillRect((posX - 1) * this.scale * 16, posY * this.scale * 16, this.scale * 16, this.scale * 16);
+        break;
+      case "right":
+        this.ctx.fillRect((posX + 1) * this.scale * 16, posY * this.scale * 16, this.scale * 16, this.scale * 16);
+        break;
+      case "up":
+        this.ctx.fillRect(posX * this.scale * 16, (posY - 1) * this.scale * 16, this.scale * 16, this.scale * 16);
+        break;
+      case "down":
+        this.ctx.fillRect(posX * this.scale * 16, (posY + 1) * this.scale * 16, this.scale * 16, this.scale * 16);
+        break;
+    }
+  }
+  
 
   update() {
     super.update();
