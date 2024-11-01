@@ -12,52 +12,44 @@ class MapController {
     return instance;
   }
 
+  /**
+   * Comprueba si un tile en una posición dada es transitable.
+   * @param {number} x - Coordenada x del tile.
+   * @param {number} y - Coordenada y del tile.
+   * @returns {boolean} - Verdadero si el tile es transitable; falso si no lo es.
+   */
   isTileWalkable(x, y) {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
-
     let walkable = true;
 
     this.map.layers.forEach((layer) => {
       if (layer.type === "tilelayer" && layer.name === "metadata") {
         layer.chunks.forEach((chunk) => {
-          const {
-            x: chunkX,
-            y: chunkY,
-            width: chunkWidth,
-            height: chunkHeight,
-          } = chunk;
+          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
           const tileData = chunk.data;
 
           tileData.forEach((tileId, index) => {
             if (tileId === 1) {
               const canvasX = chunkX + (index % chunkWidth);
               const canvasY = chunkY + Math.floor(index / chunkHeight);
-
               if (canvasX === x && canvasY === y) {
                 walkable = false;
               }
             }
           });
         });
-      } else {
-        //console.warn(`Layer ${layer.name} skipped. Type: ${layer.type}`);
       }
     });
 
     return walkable;
   }
 
-
-  /*
-  * drawTile(x, y)
-  * Dibuja el tile correspondiente del mapa en ñas coordenadas x, y
-  * 
-  * @param {number} x - Coordenada x del tile
-  * @param {number} y - Coordenada y del tile
-  * @returns {void}
-  */
-
+  /**
+   * Dibuja un tile específico en las coordenadas dadas del canvas.
+   * @param {number} x - Coordenada x del tile.
+   * @param {number} y - Coordenada y del tile.
+   */
   drawTile(x, y) {
     const tileSize = this.map.tilewidth;
     const scaledTileSize = tileSize * this.scale;
@@ -66,44 +58,31 @@ class MapController {
     this.map.layers.forEach((layer) => {
       if (layer.type === "tilelayer" && layer.name !== "metadata") {
         layer.chunks.forEach((chunk) => {
-          const {
-            x: chunkX,
-            y: chunkY,
-            width: chunkWidth,
-            height: chunkHeight,
-          } = chunk;
+          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
           const tileData = chunk.data;
 
           tileData.forEach((tileId, index) => {
             if (tileId !== 0) {
               const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
               const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
-
               const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
               const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
 
               if (canvasX === x * tileSize * this.scale && canvasY === y * tileSize * this.scale) {
-                this.ctx.drawImage(
-                  this.tileset,
-                  tilesetX,
-                  tilesetY,
-                  tileSize,
-                  tileSize,
-                  canvasX,
-                  canvasY,
-                  scaledTileSize,
-                  scaledTileSize
-                );
+                this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
               }
             }
           });
         });
-      } else {
-        //console.warn(`Layer ${layer.name} skipped. Type: ${layer.type}`);
       }
     });
   }
 
+  /**
+   * Dibuja la capa de tiles sobrepuesta para la última posición dada en el canvas.
+   * @param {number} x - Coordenada x del tile.
+   * @param {number} y - Coordenada y del tile.
+   */
   drawLastTile(x, y) {
     const tileSize = this.map.tilewidth;
     const scaledTileSize = tileSize * this.scale;
@@ -112,54 +91,32 @@ class MapController {
     this.map.layers.forEach((layer) => {
       if (layer.type === "tilelayer" && layer.name.includes("over")) {
         layer.chunks.forEach((chunk) => {
-          const {
-            x: chunkX,
-            y: chunkY,
-            width: chunkWidth,
-            height: chunkHeight,
-          } = chunk;
+          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
           const tileData = chunk.data;
 
           tileData.forEach((tileId, index) => {
             if (tileId !== 0) {
               const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
               const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
-
               const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
               const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
 
               if (canvasX === x * tileSize * this.scale && canvasY === y * tileSize * this.scale) {
-                this.ctx.drawImage(
-                  this.tileset,
-                  tilesetX,
-                  tilesetY,
-                  tileSize,
-                  tileSize,
-                  canvasX,
-                  canvasY,
-                  scaledTileSize,
-                  scaledTileSize
-                );
+                this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
               }
             }
           });
         });
-      } else {
-        //console.warn(`Layer ${layer.name} skipped. Type: ${layer.type}`);
       }
     });
   }
-  
 
-  /*
-  * drawMap(scale = 1)
-  * Dibuja el mapa en el canvas
-  * 
-  * @param {number} scale - Escala del mapa
-  * @returns {void}
-  */
-
+  /**
+   * Dibuja el mapa completo en el canvas.
+   * @param {number} scale - Escala del mapa.
+   */
   drawMap(scale = 1) {
+    this.scale = scale;
     const tileSize = this.map.tilewidth;
     const scaledTileSize = tileSize * this.scale;
     const tilesPerRow = this.tileset.width / tileSize;
@@ -167,81 +124,51 @@ class MapController {
     this.map.layers.forEach((layer) => {
       if (layer.type === "tilelayer" && layer.name !== "metadata") {
         layer.chunks.forEach((chunk) => {
-          const {
-            x: chunkX,
-            y: chunkY,
-            width: chunkWidth,
-            height: chunkHeight,
-          } = chunk;
+          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
           const tileData = chunk.data;
 
           tileData.forEach((tileId, index) => {
             if (tileId !== 0) {
-              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * scale;
-              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * scale;
-
+              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
+              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
               const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
               const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
 
-              this.ctx.drawImage(
-                this.tileset,
-                tilesetX,
-                tilesetY,
-                tileSize,
-                tileSize,
-                canvasX,
-                canvasY,
-                scaledTileSize,
-                scaledTileSize
-              );
+              this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
             }
           });
-          
         });
-      } else {
-        //console.warn(`Layer ${layer.name} skipped. Type: ${layer.type}`);
       }
     });
-    console.log("Map drawn at time " + Date.now());
   }
 
-  /*
-  * loadMap(mapName)
-  * Carga el mapa desde el servidor
-  * 
-  * @param {string} mapName - Nombre del mapa a cargar
-  * @returns {Promise} - Promesa que se resuelve con los datos del mapa
-  */
-
+  /**
+   * Carga un mapa desde el servidor.
+   * @param {string} mapName - Nombre del mapa a cargar.
+   * @returns {Promise<Object>} - Promesa que se resuelve con los datos del mapa.
+   */
   async loadMap(mapName) {
-    const response = await fetch(
-      contextInstance.get("mapPath") + mapName + ".json"
-    );
-    const mapData = await response.json();
-    return mapData;
+    const response = await fetch(contextInstance.getKey("mapPath") + mapName + ".json");
+    return response.json();
   }
 
-  /*
-  * init(mapName, tileset, scale = 3)
-  * Inicializa el mapa y lo dibuja en el canvas
-  * 
-  * @param {string} mapName - Nombre del mapa a cargar
-  * @param {string} tileset - Nombre del tileset a cargar
-  * @param {number} scale - Escala del mapa
-  * @returns {Promise} - Promesa que se resuelve cuando el mapa ha sido cargado
-  */
- 
+  /**
+   * Inicializa el mapa y lo dibuja en el canvas.
+   * @param {string} mapName - Nombre del mapa.
+   * @param {string} tileset - Nombre del archivo de tileset.
+   * @param {number} scale - Escala del mapa.
+   * @returns {Promise<void>} - Promesa que se resuelve cuando el mapa ha sido cargado.
+   */
   async init(mapName, tileset, scale = 3) {
-    console.log("Loading map..." + Date.now());
     this.scale = scale;
     this.map = await this.loadMap(mapName);
 
     const tilesetImage = new Image();
-    tilesetImage.src = contextInstance.get("tilesetPath") + tileset;
+    tilesetImage.src = contextInstance.getKey("tilesetPath") + tileset;
+    
     return new Promise((resolve) => {
       tilesetImage.onload = () => {
         this.tileset = tilesetImage;
-        console.log("Map loaded at time " + Date.now());
         this.drawMap(scale);
         resolve();
       };

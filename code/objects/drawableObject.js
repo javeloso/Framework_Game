@@ -1,16 +1,22 @@
 import contextInstance from "../core/globalContext.js";
-
 import { gameObject } from "./gameObject.js";
 
-export class drawableObject extends gameObject{
-    constructor(){
+export class drawableObject extends gameObject {
+    /**
+     * Crea una instancia de drawableObject.
+     * Se obtiene el contexto del canvas desde `contextInstance` para realizar el dibujo.
+     */
+    constructor() {
         super();
-        this.ctx = contextInstance.get('canvasController').ctx
+        this.ctx = contextInstance.getKey('canvasController').ctx;
     }
-    update(){
-    }
-    redraw(){
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+    /**
+     * Borra el canvas completo y redibuja el objeto en su nueva posición.
+     * Puede optimizarse para borrar solo el área específica del objeto.
+     */
+    redraw() {
+        this.clearCanvas();
         this.draw();
     }
 }

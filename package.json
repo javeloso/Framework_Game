@@ -1,0 +1,45 @@
+{
+  "name": "mi-aplicacion",
+  "version": "1.0.0",
+  "description": "Una aplicación de Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.ejemplo.miapp",
+    "productName": "Mi Aplicación",
+    "files": [
+      "main.js",
+      "index.html",
+      "assets/**/*",
+      "code/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icons/aguacate.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icons/aguacate.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^25.1.0",
+    "electron-builder": "^25.1.8"
+  }
+}
