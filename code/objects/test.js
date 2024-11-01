@@ -17,7 +17,6 @@ export class test extends drawableObject {
     super();
     this.characterController = new CharacterController(posX, posY, () => this.draw());
     this.initSpriteController();
-    this.draw(); // Llama a draw en la inicialización
   }
 
   /**
@@ -41,6 +40,7 @@ export class test extends drawableObject {
    * Actualiza la posición del sprite antes de dibujarlo.
    */
   draw() {
+    console.log("Drawing player at position:", this.characterController.getPosition());
     this.sprite = this.characterController.getSpriteTest();
     if (!this.sprite) return;
 
