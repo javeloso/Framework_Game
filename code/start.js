@@ -18,7 +18,7 @@ export class Start {
      */
     constructor() {
         contextInstance.getKey("mapController")
-            .init("testMap_Interior", "hgss_interior.png", 1)
+            .init("testMap", "hgss.png", 1)
             .then(() => {
                 this.test();
             });

@@ -1,3 +1,11 @@
+/**
+ * Podriamos crear la clase Tile(x,y,map) que se encargue de dibujar el tile en el canvas.
+ * Estos tiles se cargarían cuando cargamos el mapa y se dibujarían en el canvas en las posiciones correspondientes.
+ * Tendrían la funcion draw que se encargaría de dibujar el tile en el canvas.
+ */
+
+//Utilizar la clase map para guardar los tiles y comprobar si se puede mover a una posición.
+
 import contextInstance from "../core/globalContext.js";
 
 let instance = null;
@@ -47,10 +55,13 @@ class MapController {
 
   /**
    * Dibuja un tile específico en las coordenadas dadas del canvas.
+   * Podriamos crear una clase Tile, que tenga un método draw, y que se encargue de dibujar el tile en el canvas.
+   * 
    * @param {number} x - Coordenada x del tile.
    * @param {number} y - Coordenada y del tile.
    */
   drawTile(x, y) {
+
     const tileSize = this.map.tilewidth;
     const scaledTileSize = tileSize * this.scale;
     const tilesPerRow = this.tileset.width / tileSize;

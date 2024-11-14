@@ -40,6 +40,7 @@ export class test extends drawableObject {
    * Actualiza la posición del sprite antes de dibujarlo.
    */
   draw() {
+
     console.log("Drawing player at position:", this.characterController.getPosition());
     this.sprite = this.characterController.getSpriteTest();
     if (!this.sprite) return;
@@ -52,8 +53,6 @@ export class test extends drawableObject {
       this.sprite.sx, this.sprite.sy, this.sprite.width, this.sprite.height,
       posX * this.scale * 16, posY * this.scale * 16, this.scale * 16, this.scale * 16
     );
-
-    //this.testLookDirection(posX, posY);
   }
 
   /**
