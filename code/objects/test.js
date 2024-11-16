@@ -40,20 +40,20 @@ export class test extends drawableObject {
    * Actualiza la posición del sprite antes de dibujarlo.
    */
   draw() {
-
-    console.log("Drawing player at position:", this.characterController.getPosition());
     this.sprite = this.characterController.getSpriteTest();
     if (!this.sprite) return;
-
+  
     const { posX, posY, lposX, lposY } = this.characterController.getPosition();
     contextInstance.getKey("mapController").drawTile(lposX, lposY);
-
+  
+    // Duplicar el tamaño del sprite al dibujarlo
     this.ctx.drawImage(
       this.sprite.image,
       this.sprite.sx, this.sprite.sy, this.sprite.width, this.sprite.height,
-      posX * this.scale * 16, posY * this.scale * 16, this.scale * 16, this.scale * 16
+      posX * this.scale * contextInstance.getKey("boxSize"), posY * this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize")
     );
   }
+  
 
   /**
    * Dibuja un rectángulo que indica la dirección que está mirando el jugador.
@@ -88,6 +88,6 @@ export class test extends drawableObject {
    */
   update() {
     super.update();
-    console.log("Player updated at position:", this.characterController.getPosition());
+    //console.log("Player updated at position:", this.characterController.getPosition());
   }
 }

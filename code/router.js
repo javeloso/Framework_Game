@@ -84,5 +84,6 @@ import { Map } from "./core/objects/map.js";
 import { Tile } from "./core/objects/tile.js";
 
 keyboardController.onKeyPress("L", () => {
-    console.log(contextInstance.getKey("mapController").toString());
+    // console.log(contextInstance.getKey("mapController").toString());
+    contextInstance.getKey("mapController").draw();
 });

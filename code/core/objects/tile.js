@@ -6,13 +6,13 @@ export class Tile {
     this.posY = posY;
 
     this.underPositions = underPositions;
-    // [[0,0],[1,1],[2,2]]
     this.overPositions = overPositions;
 
     this.ctx = contextInstance.getKey("canvasController").getContext();
     this.tileset = contextInstance.getKey("tileset");
     this.tileSize = contextInstance.getKey("tileSize");
     this.scale = contextInstance.getKey("scale");
+
     this.scaledTileSize = this.tileSize * this.scale;
 
     this.metadata = metadata;
@@ -40,6 +40,7 @@ export class Tile {
   }
 
   isTileWalkable() {
+    console.log(this);
     return this.metadata === 0;
   }
 

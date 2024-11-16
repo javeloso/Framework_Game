@@ -41,7 +41,6 @@ export class SpriteController {
                 });
             }
         }
-        console.log("Sprites generated:", this.sprites.length);
     }
 
     /**

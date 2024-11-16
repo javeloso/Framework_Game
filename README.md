@@ -1,3 +1,7 @@
+la escala se mide en 1,2,3...
+
+lo que hace que si el sprite tiene 16px y el tile 32, como utilizan el mismo factor de escala, 
+
 # Framework para Juegos 2D Basados en Tiles con JavaScript
 
 Este framework está diseñado para crear juegos 2D sencillos utilizando JavaScript puro y un sistema basado en tiles. La estructura del proyecto está organizada en carpetas y archivos que separan los recursos gráficos y el código.

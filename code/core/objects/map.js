@@ -67,7 +67,6 @@ export class Map {
                   break;
 
                 case "metadata":
-                  console.log (tileId);
                   tile = new Tile(
                     posX,
                     posY,
@@ -152,16 +151,8 @@ export class Map {
     return false;
   }
 
-  toString(layer) {
-    let string = "";
-      for (let i = 0; i < this.map.length; i++) {
-        for (let j = 0; j < this.map[0].length; j++) {
-          string += `[${this.getTile(i, j).getMetadata()}],`
-        }
-        string += "\n";
-      }
-    
-    return string;
+  toString() {
+    return this.map;
   }
   //checkProperties(x, y) {}
 }

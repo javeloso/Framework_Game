@@ -26,22 +26,32 @@ class MapController {
     return instance;
   }
 
+  inflateMap() {
+    const hasChunks = this.map.layers.some(layer => layer.chunks);
+
+    if (hasChunks) {
+        this.inflateInfiniteMap();  // Si alguna capa tiene "chunks", usa el método para mapas infinitos
+    } else {
+        this.inflateFixMap();  // Si no, usa el método para mapas fijos
+    }
+    console.log("boxSize: "+ contextInstance.getKey("boxSize"));
+  }
+
   /**
    * Infla el mapa, procesando las capas de tipo tilelayer y extrayendo los datos de cada tile.
    * Asocia cada tile con su respectiva posición en el mapa y las coordenadas en el tileset.
    * Los tiles se almacenan en dataMap para su posterior uso.
    */
-  inflateMap() {
+  inflateInfiniteMap() {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
 
     this.dataMap = new Map();
 
+    contextInstance.setKey("boxSize", this.map.tilewidth);
+
     this.map.layers.forEach((layer) => {
       if (layer.type === "tilelayer") {
-        if (layer.name.includes("over")) {
-        }
-
         layer.chunks.forEach((chunk) => {
           const {
             x: chunkX,
@@ -69,7 +79,7 @@ class MapController {
                   0 // Metadata del tile (se puede ajustar según el mapa)
                 );
               } else if (layer.name == "metadata") {
-                console.log(tileId);
+                
                 tile = new Tile(
                   posX,
                   posY,
@@ -86,10 +96,42 @@ class MapController {
                   0 // Metadata del tile (se puede ajustar según el mapa)
                 );
               }
-
               this.dataMap.insertTile(tile);
             }
           });
+        });
+      }
+    });
+  }
+
+  inflateFixMap() {
+    const tileSize = this.map.tilewidth;
+    const tilesPerRow = this.tileset.width / tileSize;
+
+    this.dataMap = new Map();
+    contextInstance.setKey("boxSize", this.map.tilewidth);
+
+    this.map.layers.forEach((layer) => {
+      if (layer.type === "tilelayer") {
+        // Procesar los tiles de esta capa
+        layer.data.forEach((tileId, index) => {
+          const posX = index % layer.width;
+          const posY = Math.floor(index / layer.width);
+          const tilesetX = (tileId - 1) % tilesPerRow;
+          const tilesetY = Math.floor((tileId - 1) / tilesPerRow);
+          let tile = null;
+          if (layer.name === "metadata") {
+            if (tileId !== 0) {
+              tile = new Tile(posX, posY, [], [], tileId);
+            }
+          } else if (layer.name.includes("over")) {
+            tile = new Tile(posX, posY, [], [[tilesetX, tilesetY]], 0);
+          } else {
+            tile = new Tile(posX, posY, [[tilesetX, tilesetY]], [], 0);
+          }
+          if (tile !== null) {
+            this.dataMap.insertTile(tile);
+          }
         });
       }
     });

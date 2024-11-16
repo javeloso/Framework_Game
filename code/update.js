@@ -14,7 +14,7 @@ class Update {
     const updates = Object.values(contextInstance.getUpdate()); // Obtenemos los valores
 
     if (updates.length == 0) {
-      console.log("No hay objetos para actualizar.");
+      //console.log("No hay objetos para actualizar.");
       return;
     }
 
