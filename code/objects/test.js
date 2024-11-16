@@ -40,6 +40,7 @@ export class test extends drawableObject {
    * Actualiza la posición del sprite antes de dibujarlo.
    */
   draw() {
+    console.log("Drawing player");
     this.sprite = this.characterController.getSpriteTest();
     if (!this.sprite) return;
   

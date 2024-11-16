@@ -40,7 +40,6 @@ export class Tile {
   }
 
   isTileWalkable() {
-    console.log(this);
     return this.metadata === 0;
   }
 

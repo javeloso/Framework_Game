@@ -84,6 +84,21 @@ import { Map } from "./core/objects/map.js";
 import { Tile } from "./core/objects/tile.js";
 
 keyboardController.onKeyPress("L", () => {
-    // console.log(contextInstance.getKey("mapController").toString());
-    contextInstance.getKey("mapController").draw();
+    contextInstance.getKey("mapController")
+    .init("testMap2", "hgss_interior.png", 1)
+    .then(() => {
+        this.test();
+    });
+});
+
+keyboardController.onKeyPress("K", () => {
+    contextInstance.getKey("mapController")
+    .init("testMap", "hgss.png", 1)
+    .then(() => {
+        this.test();
+    });
+});
+
+keyboardController.onKeyPress("M", () => {
+    contextInstance.getKey("character").draw();
 });
