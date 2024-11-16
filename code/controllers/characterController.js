@@ -70,7 +70,7 @@ export class CharacterController {
         }
         
         this.onMoveCallback(); // Llama al callback para actualizar el personaje
-        contextInstance.getKey("mapController").drawLastTile(this.posX, this.posY);
+        contextInstance.getKey("mapController").drawOver(this.posX, this.posY);
     }
 
     /**

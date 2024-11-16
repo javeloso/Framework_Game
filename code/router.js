@@ -79,6 +79,10 @@ window.onload = () => {
  * Se añade un evento de prueba al controlador de teclado `keyboardController`, 
  * configurando una función que se ejecuta cuando se presiona la tecla "L".
  */
+
+import { Map } from "./core/objects/map.js";
+import { Tile } from "./core/objects/tile.js";
+
 keyboardController.onKeyPress("L", () => {
-    console.log("Tecla L presionada: prueba de funcionamiento.");
+    console.log(contextInstance.getKey("mapController").toString());
 });

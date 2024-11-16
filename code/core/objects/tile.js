@@ -1,68 +1,92 @@
-/**
- * Esta clase va a tener una lista de las imágenes que se van a cargar en el canvas.
- */
+import contextInstance from "../globalContext.js";
 
 export class Tile {
-    constructor(id, posX, posY, tilesetX, tilesetY, tileset, tileSize, scale, isWalkable = true, isInteractable = false, object = null) {
-      this.id = id;
-      this.posX = posX;
-      this.posY = posY;
-      this.tilesetX = tilesetX;
-      this.tilesetY = tilesetY;
-      this.tileset = tileset;
-      this.tileSize = tileSize;
-      this.scale = scale;
-      this.isWalkable = isWalkable;
-      this.isInteractable = isInteractable;
-      this.object = object;
-    }
+  constructor(posX, posY, underPositions, overPositions, metadata) {
+    this.posX = posX;
+    this.posY = posY;
 
-    getX() {
-      return this.posX;
-    }
-    getY() {
-      return this.posY;
-    }
-    checkWalkability() {
-      return this.isWalkable;
-    }
-  
-    /**
-     * Verifica si el tile es transitable.
-     * @returns {boolean} - Si el tile es transitable.
-     */
-    checkWalkability() {
-      return this.isWalkable;
-    }
-  
-    /**
-     * Interactúa con el objeto en el tile, si existe.
-     * @returns {any} - El objeto en el tile, si existe.
-     */
-    interact() {
-      if (this.isInteractable && this.object) {
-        return this.object;
+    this.underPositions = underPositions;
+    // [[0,0],[1,1],[2,2]]
+    this.overPositions = overPositions;
+
+    this.ctx = contextInstance.getKey("canvasController").getContext();
+    this.tileset = contextInstance.getKey("tileset");
+    this.tileSize = contextInstance.getKey("tileSize");
+    this.scale = contextInstance.getKey("scale");
+    this.scaledTileSize = this.tileSize * this.scale;
+
+    this.metadata = metadata;
+  }
+
+  joinTile(tile) {
+    if (this.posX === tile.getX() && this.posY === tile.getY()) {
+      this.overPositions = this.overPositions.concat(tile.getOverPositions());
+      this.underPositions = this.underPositions.concat(tile.getUnderPositions());
+      if (this.metadata !== tile.getMetadata()) {
+        this.metadata = tile.getMetadata();
       }
-      return null;
-    }
-  
-    /**
-     * Dibuja el tile en el canvas.
-     * @param {CanvasRenderingContext2D} ctx - El contexto del canvas.
-     */
-    draw(ctx) {
-      const scaledTileSize = this.tileSize * this.scale;
-      ctx.drawImage(
-        this.tileset,
-        this.tilesetX,
-        this.tilesetY,
-        this.tileSize,
-        this.tileSize,
-        this.posX * this.tileSize * this.scale,
-        this.posY * this.tileSize * this.scale,
-        scaledTileSize,
-        scaledTileSize
-      );
     }
   }
-  
+
+  getX() {
+    return this.posX;
+  }
+  getY() {
+    return this.posY;
+  }
+
+  getMetadata() {
+    return this.metadata;
+  }
+
+  isTileWalkable() {
+    return this.metadata === 0;
+  }
+
+  getOverPositions() {
+    return this.overPositions;
+  }
+
+  getUnderPositions() {
+    return this.underPositions;
+  }
+
+  /**
+   * Dibuja el tile en el canvas.
+   * @param {CanvasRenderingContext2D} ctx - El contexto del canvas.
+   */
+  draw() {
+    for (let i = 0; i < this.underPositions.length; i++) {
+      this.ctx.drawImage(
+        this.tileset, // Imagen del tileset
+        this.underPositions[i][0] * this.tileSize, // Coordenada X en el tileset
+        this.underPositions[i][1] * this.tileSize, // Coordenada Y en el tileset
+        this.tileSize, // Ancho del tile en el tileset
+        this.tileSize, // Alto del tile en el tileset
+        this.posX * this.scaledTileSize, // Coordenada X en el canvas
+        this.posY * this.scaledTileSize, // Coordenada Y en el canvas
+        this.scaledTileSize, // Ancho escalado
+        this.scaledTileSize // Alto escalado
+      );
+    }
+    this.drawOver();
+  }
+
+  drawOver() {
+    for (let i = 0; i < this.overPositions.length; i++) {
+      this.ctx.drawImage(
+        this.tileset, // Imagen del tileset
+        this.overPositions[i][0] * this.tileSize, // Coordenada X en el tileset
+        this.overPositions[i][1] * this.tileSize, // Coordenada Y en el tileset
+        this.tileSize, // Ancho del tile en el tileset
+        this.tileSize, // Alto del tile en el tileset
+        this.posX * this.scaledTileSize, // Coordenada X en el canvas
+        this.posY * this.scaledTileSize, // Coordenada Y en el canvas
+        this.scaledTileSize, // Ancho escalado
+        this.scaledTileSize // Alto escalado
+      );
+    }
+
+    
+  }
+}

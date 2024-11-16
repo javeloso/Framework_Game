@@ -7,10 +7,16 @@
 //Utilizar la clase map para guardar los tiles y comprobar si se puede mover a una posición.
 
 import contextInstance from "../core/globalContext.js";
+import { Map } from "../core/objects/map.js";
+import { Tile } from "../core/objects/tile.js";
 
 let instance = null;
 
 class MapController {
+  /**
+   * Constructor de MapController
+   * @param {Object} canvasController - El controlador del canvas para poder acceder a su contexto.
+   */
   constructor(canvasController) {
     if (!instance) {
       this.canvasController = canvasController;
@@ -21,100 +27,67 @@ class MapController {
   }
 
   /**
-   * Comprueba si un tile en una posición dada es transitable.
-   * @param {number} x - Coordenada x del tile.
-   * @param {number} y - Coordenada y del tile.
-   * @returns {boolean} - Verdadero si el tile es transitable; falso si no lo es.
+   * Infla el mapa, procesando las capas de tipo tilelayer y extrayendo los datos de cada tile.
+   * Asocia cada tile con su respectiva posición en el mapa y las coordenadas en el tileset.
+   * Los tiles se almacenan en dataMap para su posterior uso.
    */
-  isTileWalkable(x, y) {
+  inflateMap() {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
-    let walkable = true;
+
+    this.dataMap = new Map();
 
     this.map.layers.forEach((layer) => {
-      if (layer.type === "tilelayer" && layer.name === "metadata") {
+      if (layer.type === "tilelayer") {
+        if (layer.name.includes("over")) {
+        }
+
         layer.chunks.forEach((chunk) => {
-          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
-          const tileData = chunk.data;
-
-          tileData.forEach((tileId, index) => {
-            if (tileId === 1) {
-              const canvasX = chunkX + (index % chunkWidth);
-              const canvasY = chunkY + Math.floor(index / chunkHeight);
-              if (canvasX === x && canvasY === y) {
-                walkable = false;
-              }
-            }
-          });
-        });
-      }
-    });
-
-    return walkable;
-  }
-
-  /**
-   * Dibuja un tile específico en las coordenadas dadas del canvas.
-   * Podriamos crear una clase Tile, que tenga un método draw, y que se encargue de dibujar el tile en el canvas.
-   * 
-   * @param {number} x - Coordenada x del tile.
-   * @param {number} y - Coordenada y del tile.
-   */
-  drawTile(x, y) {
-
-    const tileSize = this.map.tilewidth;
-    const scaledTileSize = tileSize * this.scale;
-    const tilesPerRow = this.tileset.width / tileSize;
-
-    this.map.layers.forEach((layer) => {
-      if (layer.type === "tilelayer" && layer.name !== "metadata") {
-        layer.chunks.forEach((chunk) => {
-          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
+          const {
+            x: chunkX,
+            y: chunkY,
+            width: chunkWidth,
+            height: chunkHeight,
+          } = chunk;
           const tileData = chunk.data;
 
           tileData.forEach((tileId, index) => {
             if (tileId !== 0) {
-              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
-              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
-              const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
-              const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
+              const posX = chunkX + (index % chunkWidth);
+              const posY = chunkY + Math.floor(index / chunkHeight);
 
-              if (canvasX === x * tileSize * this.scale && canvasY === y * tileSize * this.scale) {
-                this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
+              // Coordenadas del tile en el tileset
+              const tilesetX = (tileId - 1) % tilesPerRow;
+              const tilesetY = Math.floor((tileId - 1) / tilesPerRow);
+              let tile;
+              if (layer.name.includes("over")) {
+                tile = new Tile(
+                  posX,
+                  posY,
+                  [], // Asume una capa "underPositions"
+                  [[tilesetX, tilesetY]], // Puedes agregar capas "overPositions" si las hay
+                  0 // Metadata del tile (se puede ajustar según el mapa)
+                );
+              } else if (layer.name == "metadata") {
+                console.log(tileId);
+                tile = new Tile(
+                  posX,
+                  posY,
+                  [], // Asume una capa "underPositions"
+                  [], // Puedes agregar capas "overPositions" si las hay
+                  tileId // Metadata del tile (se puede ajustar según el mapa)
+                );
+              } else {
+                tile = new Tile(
+                  posX,
+                  posY,
+                  [[tilesetX, tilesetY]], // Asume una capa "underPositions"
+                  [], // Puedes agregar capas "overPositions" si las hay
+                  0 // Metadata del tile (se puede ajustar según el mapa)
+                );
               }
-            }
-          });
-        });
-      }
-    });
-  }
 
-  /**
-   * Dibuja la capa de tiles sobrepuesta para la última posición dada en el canvas.
-   * @param {number} x - Coordenada x del tile.
-   * @param {number} y - Coordenada y del tile.
-   */
-  drawLastTile(x, y) {
-    const tileSize = this.map.tilewidth;
-    const scaledTileSize = tileSize * this.scale;
-    const tilesPerRow = this.tileset.width / tileSize;
-
-    this.map.layers.forEach((layer) => {
-      if (layer.type === "tilelayer" && layer.name.includes("over")) {
-        layer.chunks.forEach((chunk) => {
-          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
-          const tileData = chunk.data;
-
-          tileData.forEach((tileId, index) => {
-            if (tileId !== 0) {
-              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
-              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
-              const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
-              const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
-
-              if (canvasX === x * tileSize * this.scale && canvasY === y * tileSize * this.scale) {
-                this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
-              }
+              this.dataMap.insertTile(tile);
             }
           });
         });
@@ -122,35 +95,20 @@ class MapController {
     });
   }
 
-  /**
-   * Dibuja el mapa completo en el canvas.
-   * @param {number} scale - Escala del mapa.
-   */
-  drawMap(scale = 1) {
-    this.scale = scale;
-    const tileSize = this.map.tilewidth;
-    const scaledTileSize = tileSize * this.scale;
-    const tilesPerRow = this.tileset.width / tileSize;
+  draw() {
+    this.dataMap.draw();
+  }
 
-    this.map.layers.forEach((layer) => {
-      if (layer.type === "tilelayer" && layer.name !== "metadata") {
-        layer.chunks.forEach((chunk) => {
-          const { x: chunkX, y: chunkY, width: chunkWidth, height: chunkHeight } = chunk;
-          const tileData = chunk.data;
+  drawTile(X,Y) {
+    this.dataMap.drawTile(X,Y);
+  }
 
-          tileData.forEach((tileId, index) => {
-            if (tileId !== 0) {
-              const canvasX = (chunkX + (index % chunkWidth)) * tileSize * this.scale;
-              const canvasY = (chunkY + Math.floor(index / chunkHeight)) * tileSize * this.scale;
-              const tilesetX = ((tileId - 1) % tilesPerRow) * tileSize;
-              const tilesetY = Math.floor((tileId - 1) / tilesPerRow) * tileSize;
+  drawOver(X,Y) {
+    this.dataMap.drawOver(X,Y);
+  }
 
-              this.ctx.drawImage(this.tileset, tilesetX, tilesetY, tileSize, tileSize, canvasX, canvasY, scaledTileSize, scaledTileSize);
-            }
-          });
-        });
-      }
-    });
+  isTileWalkable(X,Y) {
+    return this.dataMap.isTileWalkable(X,Y);
   }
 
   /**
@@ -159,7 +117,9 @@ class MapController {
    * @returns {Promise<Object>} - Promesa que se resuelve con los datos del mapa.
    */
   async loadMap(mapName) {
-    const response = await fetch(contextInstance.getKey("mapPath") + mapName + ".json");
+    const response = await fetch(
+      contextInstance.getKey("mapPath") + mapName + ".json"
+    );
     return response.json();
   }
 
@@ -176,14 +136,27 @@ class MapController {
 
     const tilesetImage = new Image();
     tilesetImage.src = contextInstance.getKey("tilesetPath") + tileset;
-    
+
+    contextInstance.setKey("tileSize", this.map.tilewidth);
+    contextInstance.setKey("scale", scale);
+
     return new Promise((resolve) => {
       tilesetImage.onload = () => {
+        contextInstance.setKey("tileset", tilesetImage);
         this.tileset = tilesetImage;
-        this.drawMap(scale);
+        this.inflateMap();
+        this.dataMap.draw();
         resolve();
       };
     });
+  }
+
+  /**
+   * Devuelve una representación en forma de cadena de los datos del mapa.
+   * @returns {string} - Representación en cadena de los datos del mapa.
+   */
+  toString() {
+    return this.dataMap.toString();
   }
 }
 

@@ -67,6 +67,10 @@ class CanvasController {
     drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
         this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
+
+    getContext() {
+        return this.ctx;
+    }
 }
 
 export default CanvasController;
