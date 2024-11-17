@@ -26,15 +26,14 @@ class MapController {
     return instance;
   }
 
-  inflateMap() {
+  async inflateMap() {
     const hasChunks = this.map.layers.some(layer => layer.chunks);
 
     if (hasChunks) {
-        this.inflateInfiniteMap();  // Si alguna capa tiene "chunks", usa el método para mapas infinitos
+        await this.inflateInfiniteMap();  // Si alguna capa tiene "chunks", usa el método para mapas infinitos
     } else {
-        this.inflateFixMap();  // Si no, usa el método para mapas fijos
+        await this.inflateFixMap();  // Si no, usa el método para mapas fijos
     }
-    console.log("boxSize: "+ contextInstance.getKey("boxSize"));
   }
 
   /**
@@ -42,7 +41,7 @@ class MapController {
    * Asocia cada tile con su respectiva posición en el mapa y las coordenadas en el tileset.
    * Los tiles se almacenan en dataMap para su posterior uso.
    */
-  inflateInfiniteMap() {
+  async inflateInfiniteMap() {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
 
@@ -104,7 +103,7 @@ class MapController {
     });
   }
 
-  inflateFixMap() {
+  async inflateFixMap() {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
 
@@ -159,10 +158,18 @@ class MapController {
    * @returns {Promise<Object>} - Promesa que se resuelve con los datos del mapa.
    */
   async loadMap(mapName) {
-    const response = await fetch(
-      contextInstance.getKey("mapPath") + mapName + ".json"
-    );
-    return response.json();
+    try {
+      const response = await fetch(
+        contextInstance.getKey("mapPath") + mapName + ".json"
+      );
+      if (!response.ok) {
+        throw new Error(`Error loading map: ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Failed to load map:", error);
+      throw error; // Re-lanza el error para manejarlo en el método `init`.
+    }
   }
 
   /**
@@ -174,23 +181,38 @@ class MapController {
    */
   async init(mapName, tileset, scale = 3) {
     this.scale = scale;
-    this.map = await this.loadMap(mapName);
-
-    const tilesetImage = new Image();
-    tilesetImage.src = contextInstance.getKey("tilesetPath") + tileset;
-
-    contextInstance.setKey("tileSize", this.map.tilewidth);
-    contextInstance.setKey("scale", scale);
-
-    return new Promise((resolve) => {
-      tilesetImage.onload = () => {
-        contextInstance.setKey("tileset", tilesetImage);
-        this.tileset = tilesetImage;
-        this.inflateMap();
-        this.dataMap.draw();
-        resolve();
-      };
-    });
+    try {
+      this.map = await this.loadMap(mapName);
+  
+      const tilesetImage = new Image();
+      tilesetImage.src = contextInstance.getKey("tilesetPath") + tileset;
+  
+      contextInstance.setKey("tileSize", this.map.tilewidth);
+      contextInstance.setKey("scale", scale);
+  
+      return new Promise((resolve, reject) => {
+        tilesetImage.onload = async () => {
+          try {
+            contextInstance.setKey("tileset", tilesetImage);
+            this.tileset = tilesetImage;
+            await this.inflateMap();
+            await this.draw();
+            resolve();
+          } catch (inflateError) {
+            console.error("Error inflating map:", inflateError);
+            reject(inflateError);
+          }
+        };
+  
+        tilesetImage.onerror = (error) => {
+          console.error("Error loading tileset image:", error);
+          reject(error);
+        };
+      });
+    } catch (error) {
+      console.error("Failed to initialize map:", error);
+      throw error;
+    }
   }
 
   /**

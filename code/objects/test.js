@@ -13,10 +13,13 @@ export class test extends drawableObject {
    * @param {number} posX - Posición inicial en el eje X del jugador.
    * @param {number} posY - Posición inicial en el eje Y del jugador.
    */
-  constructor(posX, posY) {
+  constructor(posX, posY, name = "") {
     super();
     this.characterController = new CharacterController(posX, posY, () => this.draw());
     this.initSpriteController();
+    this.initSpriteController().then(() => {
+      this.draw(); // Dibuja solo cuando el sprite está listo
+    });
   }
 
   /**
@@ -40,7 +43,6 @@ export class test extends drawableObject {
    * Actualiza la posición del sprite antes de dibujarlo.
    */
   draw() {
-    console.log("Drawing player");
     this.sprite = this.characterController.getSpriteTest();
     if (!this.sprite) return;
   
@@ -53,6 +55,7 @@ export class test extends drawableObject {
       this.sprite.sx, this.sprite.sy, this.sprite.width, this.sprite.height,
       posX * this.scale * contextInstance.getKey("boxSize"), posY * this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize")
     );
+    console.log("Player drawn at position:", this.characterController.getPosition());
   }
   
 

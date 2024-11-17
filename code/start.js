@@ -18,13 +18,13 @@ export class Start {
      */
     constructor() {
         contextInstance.getKey("mapController")
-            .init("testMap", "hgss.png", 1)
+            .init("testMap4", "hgss.png", 1)
             .then(() => {
                 this.test();
             });
     }
 
-    /**
+    /**d
      * test
      * 
      * Crea una instancia de la clase `test` con posiciones iniciales `(15, 15)`. Llama al método `draw` 
@@ -35,11 +35,8 @@ export class Start {
      * actualizaciones globales.
      */
     test() {
-        
-        const testInstance = new test(6, 7); // Crea un nuevo objeto `test` en (15, 15)
+        const testInstance = new test(4, 4);
         contextInstance.setKey("character", testInstance);
-        testInstance.draw(); // Dibuja el objeto en el canvas
-
-        // contextInstance.setUpdate('testInstance', testInstance); // Opcional: guarda la instancia en el contexto global
+        testInstance.draw();
     }
 }
