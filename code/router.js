@@ -48,7 +48,7 @@ window.onload = () => {
      * Ambos controladores se almacenan en `contextInstance` para su acceso global.
      */
     const canvasController = new CanvasController(); // Dimensiones del canvas
-    canvasController.createCanvas('main', 1000, 1000);
+    canvasController.createCanvas('main', 4080, 2000);
     canvasController.getCanvas('main').create();
     
     const mapController = new MapController(canvasController); // Controlador de mapa que usa el canvas
@@ -104,68 +104,81 @@ keyboardController.onKeyPress("K", () => {
     });
 });
 
-keyboardController.onKeyPress("keyDown", () => {
-    
+keyboardController.onKeyPress("ArrowLeft", () => {
+    contextInstance.getKey("mapController").moveCanvas(30, 0); // Mover a la derecha
 });
 
-function moveCanvas(dx, dy) {
+keyboardController.onKeyPress("ArrowRight", () => {
+    contextInstance.getKey("mapController").moveCanvas(-30, 0); // Mover a la izquierda
+});
 
+keyboardController.onKeyPress("ArrowUp", () => {
+    contextInstance.getKey("mapController").moveCanvas(0, 30); // Mover hacia abajo
+});
+
+keyboardController.onKeyPress("ArrowDown", () => {
+    contextInstance.getKey("mapController").moveCanvas(0, -30); // Mover hacia arriba
+});
+
+
+function moveCanvas(dx, dy) {
+    
     const ctx = contextInstance.getKey("canvasController").getCanvas("main").getContext();
     const canvas = ctx.canvas;
-
+    
     // Capturar el estado inicial del canvas
     let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
+    
     // Variables para desplazamiento
     let offsetX = 0;
     let offsetY = 0;
-
+    
     // Actualizar desplazamiento
     offsetX += dx;
     offsetY += dy;
-
+    
     // Limpiar el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
     // Dibujar la imagen desplazada
     ctx.putImageData(imageData, offsetX, offsetY);
-
+    
     offsetX += dx;
-        offsetY += dy;
-
-        // Limpiar el canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Dibujar la imagen desplazada
-        ctx.putImageData(imageData, offsetX, offsetY);
-        const currentPosition = contextInstance.getKey('relativeMapPosition') || { x: 0, y: 0 };
-        contextInstance.setKey('relativeMapPosition', {
-            x: currentPosition.x + dx,
-            y: currentPosition.y + dy
-        });
+    offsetY += dy;
+    
+    // Limpiar el canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Dibujar la imagen desplazada
+    ctx.putImageData(imageData, offsetX, offsetY);
+    const currentPosition = contextInstance.getKey('relativeMapPosition') || { x: 0, y: 0 };
+    contextInstance.setKey('relativeMapPosition', {
+        x: currentPosition.x + dx,
+        y: currentPosition.y + dy
+    });
 }
 
 keyboardController.onKeyPress("M", () => {
     // Obtener el contexto del canvas desde el canvasController
     const ctx = contextInstance.getKey("canvasController").getCanvas("main").getContext();
     const canvas = ctx.canvas;
-
+    
     // Capturar el estado inicial del canvas
     let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
+    
     // Variables para desplazamiento
     let offsetX = 0;
     let offsetY = 0;
-
+    
     // Función para mover el contenido
     function moveCanvas(dx, dy) {
         // Actualizar desplazamiento
         offsetX += dx;
         offsetY += dy;
-
+        
         // Limpiar el canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
         // Dibujar la imagen desplazada
         ctx.putImageData(imageData, offsetX, offsetY);
         const currentPosition = contextInstance.getKey('relativeMapPosition') || { x: 0, y: 0 };
@@ -173,25 +186,25 @@ keyboardController.onKeyPress("M", () => {
             x: currentPosition.x + dx,
             y: currentPosition.y + dy
         });
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowLeft':
+                    break;
+                case 'ArrowRight':
+                    this.mapController.moveCanvas(10, 0); // Mover a la derecha
+                    break;
+                case 'ArrowUp':
+                    this.mapController.moveCanvas(0, -10); // Mover hacia arriba
+                    break;
+                case 'ArrowDown':
+                    this.mapController.moveCanvas(0, 10); // Mover hacia abajo
+                    break;
+            }
+        });
     }
-
     
-
+    
+    
     // Configurar eventos de teclado para mover el contenido
-    document.addEventListener('keydown', (event) => {
-        switch (event.key) {
-            case 'ArrowLeft':
-                moveCanvas(-10, 0); // Mover a la izquierda
-                break;
-            case 'ArrowRight':
-                moveCanvas(10, 0); // Mover a la derecha
-                break;
-            case 'ArrowUp':
-                moveCanvas(0, -10); // Mover hacia arriba
-                break;
-            case 'ArrowDown':
-                moveCanvas(0, 10); // Mover hacia abajo
-                break;
-        }
-    });
+    
 });

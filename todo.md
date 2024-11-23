@@ -1,0 +1,4 @@
+- el personaje no se dibuja al comienzo.
+- Añadir que la camara siga al personaje.
+- que no haya cachos blancos en el canvas, o sea, que la imagen siempre esté dentro del canvas
+- arreglar logica de dibujado.

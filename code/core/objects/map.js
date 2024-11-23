@@ -15,71 +15,9 @@ export class Map {
     // this.loadMap();
   }
 
-  loadMap() {
-    this.tileMap = contextInstance.getKey("tileMap");
-    this.tileset = contextInstance.getKey("tileset");
-
-    const tileSize = this.map.tilewidth;
-    const tilesPerRow = this.tileset.width / tileSize;
-
-    this.tileMap.layers.forEach((layer) => {
-      if (layer.type === "tilelayer") {
-        if (layer.name.includes("over")) {
-        }
-
-        layer.chunks.forEach((chunk) => {
-          const {
-            x: chunkX,
-            y: chunkY,
-            width: chunkWidth,
-            height: chunkHeight,
-          } = chunk;
-          const tileData = chunk.data;
-
-          tileData.forEach((tileId, index) => {
-            if (tileId !== 0) {
-              const posX = chunkX + (index % chunkWidth);
-              const posY = chunkY + Math.floor(index / chunkHeight);
-
-              // Coordenadas del tile en el tileset
-              const tilesetX = (tileId - 1) % tilesPerRow;
-              const tilesetY = Math.floor((tileId - 1) / tilesPerRow);
-              let tile;
-              switch (layer.name) {
-                case "under":
-                  // Crea una nueva instancia de Tile
-                  tile = new Tile(
-                    posX,
-                    posY,
-                    [[tilesetX, tilesetY]], // Asume una capa "underPositions"
-                    [], // Puedes agregar capas "overPositions" si las hay
-                    0 // Metadata del tile (se puede ajustar según el mapa)
-                  );
-                  break;
-                case "over":
-                  tile = new Tile(
-                    posX,
-                    posY,
-                    [], // Asume una capa "underPositions"
-                    [[tilesetX, tilesetY]], // Puedes agregar capas "overPositions" si las hay
-                    0 // Metadata del tile (se puede ajustar según el mapa)
-                  );
-                  break;
-
-                case "metadata":
-                  tile = new Tile(
-                    posX,
-                    posY,
-                    [], // Asume una capa "underPositions"
-                    [], // Puedes agregar capas "overPositions" si las hay
-                    tileId // Metadata del tile (se puede ajustar según el mapa)
-                  );
-              }
-            }
-          });
-        });
-      }
-    });
+  calculate() {
+    this.height = this.map.length * contextInstance.getKey("boxSize") * contextInstance.getKey("scale");
+    this.width = this.map[0].length * contextInstance.getKey("boxSize") * contextInstance.getKey("scale");
   }
 
   /**
@@ -149,6 +87,14 @@ export class Map {
       return tile.getMetadata();
     }
     return false;
+  }
+
+  getHeight() {
+    return this.height;
+  }
+
+  getWidth() {
+    return this.width;
   }
 
   toString() {

@@ -32,6 +32,7 @@ class CanvasController {
         const canvas = new Canvas(width, height);
         try {
             this.canvasList[name] = canvas
+            return canvas;
         } catch (e) {
             console.error(`Error al asignar la clave ${key} en GlobalContext`);
         }
@@ -56,8 +57,8 @@ class CanvasController {
      * 
      * Limpia el canvas borrando todo el contenido renderizado.
      */
-    clear() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    clear(name) {
+        this.getContext(name).clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     /**
@@ -75,11 +76,7 @@ class CanvasController {
      * Dibuja una sección de la imagen en el canvas en una posición específica y permite escalarla.
      */
     drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-        this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-    }
-
-    getContext() {
-        return this.ctx;
+        this.getContext(name).drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 }
 

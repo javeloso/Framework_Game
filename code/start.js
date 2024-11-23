@@ -18,7 +18,7 @@ export class Start {
      */
     constructor() {
         contextInstance.getKey("mapController")
-            .init("testMap", "hgss.png", 1)
+            .init("tm", "ts.png", 3)
             .then(() => {
                 this.test();
             });
@@ -35,8 +35,10 @@ export class Start {
      * actualizaciones globales.
      */
     test() {
-        const testInstance = new test(14,14);
+        const testInstance = new test();
+        testInstance.setPosition(15, 15);
         contextInstance.setKey("character", testInstance);
-        testInstance.draw();
     }
+
+    
 }

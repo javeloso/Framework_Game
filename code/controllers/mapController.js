@@ -27,13 +27,15 @@ class MapController {
   }
 
   async inflateMap() {
-    const hasChunks = this.map.layers.some(layer => layer.chunks);
+    const hasChunks = this.map.layers.some((layer) => layer.chunks);
 
     if (hasChunks) {
-        await this.inflateInfiniteMap();  // Si alguna capa tiene "chunks", usa el método para mapas infinitos
+      await this.inflateInfiniteMap(); // Si alguna capa tiene "chunks", usa el método para mapas infinitos
     } else {
-        await this.inflateFixMap();  // Si no, usa el método para mapas fijos
+      await this.inflateFixMap(); // Si no, usa el método para mapas fijos
     }
+
+    this.dataMap.calculate();
   }
 
   /**
@@ -78,7 +80,6 @@ class MapController {
                   0 // Metadata del tile (se puede ajustar según el mapa)
                 );
               } else if (layer.name == "metadata") {
-                
                 tile = new Tile(
                   posX,
                   posY,
@@ -138,18 +139,19 @@ class MapController {
 
   draw(ctx) {
     this.dataMap.draw(ctx);
+    console.log("Mapa dibujado");
   }
 
-  drawTile(ctx,X,Y) {
-    this.dataMap.drawTile(ctx,X,Y);
+  drawTile(ctx, X, Y) {
+    this.dataMap.drawTile(ctx, X, Y);
   }
 
-  drawOver(ctx,X,Y) {
-    this.dataMap.drawOver(ctx,X,Y);
+  drawOver(ctx, X, Y) {
+    this.dataMap.drawOver(ctx, X, Y);
   }
 
-  isTileWalkable(X,Y) {
-    return this.dataMap.isTileWalkable(X,Y);
+  isTileWalkable(X, Y) {
+    return this.dataMap.isTileWalkable(X, Y);
   }
 
   /**
@@ -179,31 +181,53 @@ class MapController {
    * @param {number} scale - Escala del mapa.
    * @returns {Promise<void>} - Promesa que se resuelve cuando el mapa ha sido cargado.
    */
-  async init(mapName, tileset, scale = 3) {
+  async init(mapName, tileset, scale) {
     this.scale = scale;
     try {
       this.map = await this.loadMap(mapName);
-  
+
       const tilesetImage = new Image();
       tilesetImage.src = contextInstance.getKey("tilesetPath") + tileset;
-  
+
       contextInstance.setKey("tileSize", this.map.tilewidth);
       contextInstance.setKey("scale", scale);
-  
+
       return new Promise((resolve, reject) => {
         tilesetImage.onload = async () => {
           try {
             contextInstance.setKey("tileset", tilesetImage);
             this.tileset = tilesetImage;
             await this.inflateMap();
-            await this.draw(contextInstance.getKey("canvasController").getCanvas("main").getContext());
+            let auxCanvas = contextInstance
+              .getKey("canvasController")
+              .createCanvas(
+                "aux",
+                this.dataMap.getWidth(),
+                this.dataMap.getHeight()
+              );
+            let ctx = auxCanvas.getContext("2d");
+            await this.draw(auxCanvas.getContext());
+            this.imageData = ctx.getImageData(
+              0,
+              0,
+              auxCanvas.width,
+              auxCanvas.height
+            );
+            contextInstance
+              .getKey("canvasController")
+              .getContext("main")
+              .putImageData(this.imageData, 0, 0);
+
+            this.posX = 0;
+            this.posY = 0;
+
             resolve();
           } catch (inflateError) {
             console.error("Error inflating map:", inflateError);
             reject(inflateError);
           }
         };
-  
+
         tilesetImage.onerror = (error) => {
           console.error("Error loading tileset image:", error);
           reject(error);
@@ -213,6 +237,36 @@ class MapController {
       console.error("Failed to initialize map:", error);
       throw error;
     }
+  }
+
+  moveCanvas(dx, dy) {
+    this.posX += dx;
+    this.posY += dy;
+
+    // Limpiar el canvas
+    contextInstance
+      .getKey("canvasController")
+      .getContext("main")
+      .clearRect(
+        0,
+        0,
+        contextInstance.getKey("canvasController").getCanvas("main").width,
+        contextInstance.getKey("canvasController").getCanvas("main").height
+      );
+
+    // Dibujar la imagen desplazada
+    contextInstance
+      .getKey("canvasController")
+      .getContext("main")
+      .putImageData(this.imageData, this.posX, this.posY);
+    const currentPosition = contextInstance.getKey("relativeMapPosition") || {
+      x: 0,
+      y: 0,
+    };
+    contextInstance.setKey("relativeMapPosition", {
+      x: currentPosition.x + dx,
+      y: currentPosition.y + dy,
+    });
   }
 
   /**
