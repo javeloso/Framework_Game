@@ -154,6 +154,14 @@ class MapController {
     return this.dataMap.isTileWalkable(X, Y);
   }
 
+  getHeight() {
+    return this.dataMap.getHeight();
+  }
+
+  getWidth() {
+    return this.dataMap.getWidth();
+  }
+
   /**
    * Carga un mapa desde el servidor.
    * @param {string} mapName - Nombre del mapa a cargar.
@@ -240,8 +248,17 @@ class MapController {
   }
 
   moveCanvas(dx, dy) {
-    this.posX += dx;
-    this.posY += dy;
+
+    const canvas = contextInstance.getKey("canvasController").getCanvas("main");
+
+    this.posX = Math.max(
+      Math.min(this.posX + dx, 0),
+      canvas.width - this.imageData.width
+    );
+    this.posY = Math.max(
+      Math.min(this.posY + dy, 0),
+      canvas.height - this.imageData.height
+    );
 
     // Limpiar el canvas
     contextInstance
@@ -250,8 +267,8 @@ class MapController {
       .clearRect(
         0,
         0,
-        contextInstance.getKey("canvasController").getCanvas("main").width,
-        contextInstance.getKey("canvasController").getCanvas("main").height
+        canvas.width,
+        canvas.height
       );
 
     // Dibujar la imagen desplazada
@@ -263,10 +280,18 @@ class MapController {
       x: 0,
       y: 0,
     };
+
     contextInstance.setKey("relativeMapPosition", {
-      x: currentPosition.x + dx,
-      y: currentPosition.y + dy,
+      x: Math.max(
+        Math.min(currentPosition.x + dx, 0),
+        canvas.width - this.imageData.width
+      ),
+      y: Math.max(
+        Math.min(currentPosition.y + dy, 0),
+        canvas.height - this.imageData.height
+      ),
     });
+
   }
 
   /**

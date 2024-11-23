@@ -20,9 +20,17 @@ export class Canvas {
         this.canvas.width = width;
     }
 
+    getWidth() {
+        return this.width;
+    }
+
     setHeight(height) {
         this.height = height;
         this.canvas.height = height;
+    }
+
+    getHeight() {
+        return this.height;
     }
 
     getContext(){

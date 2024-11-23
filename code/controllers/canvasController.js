@@ -52,6 +52,18 @@ class CanvasController {
         throw new Error(`Error al obtener la clave '${name}' en la lista de lienzos: clave no definida.`);    
     }
 
+    getHeight(name) {
+        return this.canvasList[name].getHeight();
+    }
+
+    getWidth(name) {
+        return this.canvasList[name].getWidth();
+    }
+    
+
+
+
+
     /**
      * clear
      * 

@@ -62,10 +62,10 @@ export class CharacterController {
         );
       this.direction = newDirection;
     }
-
+  
     this.lposX = this.posX;
     this.lposY = this.posY;
-
+  
     if (
       contextInstance
         .getKey("mapController")
@@ -73,9 +73,59 @@ export class CharacterController {
     ) {
       this.posX += deltaX;
       this.posY += deltaY;
+  
+      // Llamamos a moveCanvas para ajustar la posición del mapa
+      this.updateCanvasPosition();
     }
+  
     this.draw();
   }
+  
+
+  updateCanvasPosition() {
+    const canvasController = contextInstance.getKey("canvasController");
+    const mapController = contextInstance.getKey("mapController");
+  
+    const canvasWidth = canvasController.getCanvas("main").width;
+    const canvasHeight = canvasController.getCanvas("main").height;
+    const tileSize = contextInstance.getKey("boxSize") * contextInstance.getKey("scale");
+  
+    const centerX = Math.floor(canvasWidth / 2);
+    const centerY = Math.floor(canvasHeight / 2);
+  
+    const relativeMapPosition = contextInstance.getKey("relativeMapPosition");
+  
+    // Calculamos la nueva posición relativa del mapa
+    const targetX =
+      centerX - this.posX * tileSize - tileSize / 2; // Centra al personaje
+    const targetY =
+      centerY - this.posY * tileSize - tileSize / 2; // Centra al personaje
+  
+    // Calculamos la diferencia entre la posición actual y el objetivo
+    const dx = targetX - relativeMapPosition.x;
+    const dy = targetY - relativeMapPosition.y;
+  
+    // Verificamos si el mapa puede moverse
+    const mapWidth = mapController.getWidth() * tileSize;
+    const mapHeight = mapController.getHeight() * tileSize;
+  
+    const maxOffsetX = Math.min(0, canvasWidth - mapWidth);
+    const maxOffsetY = Math.min(0, canvasHeight - mapHeight);
+  
+    // Aseguramos que no se salga de los límites del mapa
+    if (relativeMapPosition.x + dx >= maxOffsetX && relativeMapPosition.x + dx <= 0) {
+      contextInstance.getKey("mapController").moveCanvas(dx, 0);
+      relativeMapPosition.x += dx;
+    }
+    if (relativeMapPosition.y + dy >= maxOffsetY && relativeMapPosition.y + dy <= 0) {
+      contextInstance.getKey("mapController").moveCanvas(0, dy);
+      relativeMapPosition.y += dy;
+    }
+  }
+  
+  
+  
+  
 
   /**
    * Dibuja el personaje en el canvas.
