@@ -1,3 +1,5 @@
+import { Canvas } from "../core/model/canvas.js";
+
 /**
  * Clase CanvasController
  * 
@@ -17,28 +19,36 @@ class CanvasController {
      * Crea y configura el elemento canvas si aún no existe una instancia. Ajusta el tamaño del canvas
      * en función del ratio de píxeles del dispositivo para asegurar gráficos claros y nítidos en pantallas de alta resolución.
      */
-    constructor(width = 1000, height = 1000) {
+    constructor() {
         if (!instance) {
-            // Crear el elemento canvas y ajustar dimensiones según el dispositivo
-            this.canvas = document.createElement('canvas');
-            const ratio = window.devicePixelRatio || 1;
 
-            // Configuración del tamaño del canvas para alta resolución
-            this.canvas.width = width * ratio;
-            this.canvas.height = height * ratio;
-
-            // Configuración de estilo CSS para mantener el tamaño visual
-            this.canvas.style.width = `${width}px`;
-            this.canvas.style.height = `${height}px`;
-            this.canvas.style.imageRendering = 'pixelated'; // Previene la borrosidad en gráficos pixelados
-            
-            this.ctx = this.canvas.getContext('2d');
-            this.ctx.imageSmoothingEnabled = false; // Evita suavizado de imágenes en el canvas
-
-            document.body.appendChild(this.canvas); // Añade el canvas al DOM
+            this.canvasList = {}
             instance = this;
         }
         return instance;
+    }
+
+    createCanvas(name, width, height) {
+        const canvas = new Canvas(width, height);
+        try {
+            this.canvasList[name] = canvas
+        } catch (e) {
+            console.error(`Error al asignar la clave ${key} en GlobalContext`);
+        }
+    }
+
+    getCanvas(name) {
+        if ((name in this.canvasList)) {
+            return this.canvasList[name];
+        }
+        throw new Error(`Error al obtener la clave '${name}' en la lista de lienzos: clave no definida.`);    
+    }
+
+    getContext(name) {
+        if ((name in this.canvasList)) {
+            return this.canvasList[name].getContext();
+        }
+        throw new Error(`Error al obtener la clave '${name}' en la lista de lienzos: clave no definida.`);    
     }
 
     /**

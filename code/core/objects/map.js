@@ -117,25 +117,25 @@ export class Map {
     return null;
   }
 
-  draw() {
+  draw(ctx) {
     this.map.forEach((row, x) => {
       row.forEach((tile, y) => {
-        tile.draw();
+        tile.draw(ctx);
       });
     });
   }
 
-  drawTile(x, y) {
+  drawTile(ctx, x, y) {
     const tile = this.getTile(x, y);
     if (tile) {
-      tile.draw();
+      tile.draw(ctx);
     }
   }
 
-  drawOver(x, y) {
+  drawOver(ctx,x, y) {
     const tile = this.getTile(x, y);
     if (tile) {
-      tile.drawOver();
+      tile.drawOver(ctx);
     }
   }
 

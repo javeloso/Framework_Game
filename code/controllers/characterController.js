@@ -55,7 +55,7 @@ export class CharacterController {
         // Dibuja el tile en la posición anterior si la dirección cambia
         if (this.direction !== newDirection) {
             const [prevX, prevY] = this.getPreviousTilePosition();
-            contextInstance.getKey("mapController").drawTile(prevX, prevY);
+            contextInstance.getKey("mapController").drawTile(contextInstance.getKey("canvasController").getCanvas("main").getContext(), prevX, prevY);
             this.direction = newDirection; // Actualiza la dirección
         }
 
@@ -70,7 +70,7 @@ export class CharacterController {
         }
         
         this.onMoveCallback(); // Llama al callback para actualizar el personaje
-        contextInstance.getKey("mapController").drawOver(this.posX, this.posY);
+        contextInstance.getKey("mapController").drawOver(contextInstance.getKey("canvasController").getCanvas("main").getContext(),this.posX, this.posY);
     }
 
     /**

@@ -136,16 +136,16 @@ class MapController {
     });
   }
 
-  draw() {
-    this.dataMap.draw();
+  draw(ctx) {
+    this.dataMap.draw(ctx);
   }
 
-  drawTile(X,Y) {
-    this.dataMap.drawTile(X,Y);
+  drawTile(ctx,X,Y) {
+    this.dataMap.drawTile(ctx,X,Y);
   }
 
-  drawOver(X,Y) {
-    this.dataMap.drawOver(X,Y);
+  drawOver(ctx,X,Y) {
+    this.dataMap.drawOver(ctx,X,Y);
   }
 
   isTileWalkable(X,Y) {
@@ -196,7 +196,7 @@ class MapController {
             contextInstance.setKey("tileset", tilesetImage);
             this.tileset = tilesetImage;
             await this.inflateMap();
-            await this.draw();
+            await this.draw(contextInstance.getKey("canvasController").getCanvas("main").getContext());
             resolve();
           } catch (inflateError) {
             console.error("Error inflating map:", inflateError);

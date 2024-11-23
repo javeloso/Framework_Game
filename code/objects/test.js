@@ -18,7 +18,7 @@ export class test extends drawableObject {
     this.characterController = new CharacterController(posX, posY, () => this.draw());
     this.initSpriteController();
     this.initSpriteController().then(() => {
-      this.draw(); // Dibuja solo cuando el sprite está listo
+      this.draw(contextInstance.getKey("canvasController").getCanvas("main").getContext());
     });
   }
 
@@ -47,15 +47,21 @@ export class test extends drawableObject {
     if (!this.sprite) return;
   
     const { posX, posY, lposX, lposY } = this.characterController.getPosition();
-    contextInstance.getKey("mapController").drawTile(lposX, lposY);
-  
-    // Duplicar el tamaño del sprite al dibujarlo
-    this.ctx.drawImage(
+    contextInstance.getKey("mapController").drawTile(contextInstance.getKey("canvasController").getCanvas("main").getContext(),lposX, lposY);
+    
+    //this.testLookDirection(posX, posY);
+
+    contextInstance.getKey("canvasController").getCanvas("main").getContext().drawImage(
       this.sprite.image,
-      this.sprite.sx, this.sprite.sy, this.sprite.width, this.sprite.height,
-      posX * this.scale * contextInstance.getKey("boxSize"), posY * this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize"), this.scale * contextInstance.getKey("boxSize")
+      this.sprite.sx, 
+      this.sprite.sy, 
+      this.sprite.width, 
+      this.sprite.height,
+      posX * this.scale * contextInstance.getKey("boxSize") + contextInstance.getKey("relativeMapPosition").x, 
+      posY * this.scale * contextInstance.getKey("boxSize") + contextInstance.getKey("relativeMapPosition").y, 
+      this.scale * contextInstance.getKey("boxSize"), 
+      this.scale * contextInstance.getKey("boxSize")
     );
-    console.log("Player drawn at position:", this.characterController.getPosition());
   }
   
 
@@ -65,7 +71,7 @@ export class test extends drawableObject {
    * @param {number} posY - Posición Y actual del jugador.
    */
   testLookDirection(posX, posY) {
-    this.ctx.fillStyle = "red";
+    contextInstance.getKey("canvasController").getCanvas("main").getContext().fillStyle = "red";
     const directionOffset = {
       left: { x: -1, y: 0 },
       right: { x: 1, y: 0 },
@@ -77,11 +83,11 @@ export class test extends drawableObject {
     const offset = directionOffset[direction];
 
     if (offset) {
-      this.ctx.fillRect(
-        (posX + offset.x) * this.scale * 16,
-        (posY + offset.y) * this.scale * 16,
-        this.scale * 16,
-        this.scale * 16
+      contextInstance.getKey("canvasController").getCanvas("main").getContext().fillRect(
+        (posX + offset.x) * this.scale * contextInstance.getKey("boxSize"),
+        (posY + offset.y) * this.scale * contextInstance.getKey("boxSize"),
+        this.scale * contextInstance.getKey("boxSize"),
+        this.scale * contextInstance.getKey("boxSize")
       );
     }
   }
