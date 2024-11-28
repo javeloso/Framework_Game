@@ -40,4 +40,9 @@ export class Canvas {
     create() {
         document.body.appendChild(this.canvas); // Añade el canvas al DOM
     }
+
+    resize(width, height) {
+        this.setWidth(width);
+        this.setHeight(height);
+    }
 }

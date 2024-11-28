@@ -1,5 +1,5 @@
-import { Tile } from "./tile.js";
 import contextInstance from "../globalContext.js";
+import { Tile } from "../model/tile.js";
 
 /**
  * La clase map va a guardar en una lista todos los map que se van a dibujar en el canvas.

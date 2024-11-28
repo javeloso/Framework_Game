@@ -1,4 +1,4 @@
-import contextInstance from "../core/globalContext.js";
+import contextInstance from "../globalContext.js";
 import { gameObject } from "./gameObject.js";
 
 export class drawableObject extends gameObject {

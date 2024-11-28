@@ -6,8 +6,8 @@
  * las configuraciones iniciales del juego. 
  */
 
-import { test } from "./objects/test.js";
 import contextInstance from "./core/globalContext.js";
+import { test } from "./objects/test.js";
 
 export class Start {
     /**

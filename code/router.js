@@ -8,9 +8,9 @@
 
 import contextInstance from "./core/globalContext.js";
 
-import CanvasController from "./controllers/canvasController.js";
-import MapController from "./controllers/mapController.js";
-import keyboardController from "./controllers/keyboardController.js";
+import CanvasController from "./core/controllers/canvasController.js";
+import MapController from "./core/controllers/mapController.js";
+import keyboardController from "./core/controllers/keyboardController.js";
 
 import { Start } from "./start.js";
 
@@ -24,10 +24,26 @@ const Vars = {
 }
 
 const Paths = {
-    tilesetPath: 'assets/tilesets/',   // Ruta para los tilesets del juego
-    mapPath: 'assets/maps/',           // Ruta para los mapas del juego
-    spritePath: 'assets/sprites/',     // Ruta para los sprites del juego
-    codePath: 'code/'                  // Ruta para el código adicional
+    tilesetPath: 'assets/tilesets/',    
+    mapPath: 'assets/maps/',            
+    spritePath: 'assets/sprites/',      
+    codePath: 'code/',                  
+    controllerPath: 'core/controllers/',
+    
+    // Rutas de los modelos
+    modelPath: 'core/model/',
+    canvasModelPath: 'core/model/canvas.js',
+    mapModelPath: 'core/model/map.js',
+    tileModelPath: 'core/model/tile.js',
+    gameObjectModelPath: 'core/model/gameObject.js',
+    drawableObjectModelPath: 'core/model/drawableObject.js',
+
+    // Rutas de los controladores
+    cameraControllerPath: 'core/controllers/cameraController.js',
+    characterControllerPath: 'core/controllers/characterController.js',
+    keyboardControllerPath: 'core/controllers/keyboardController.js',
+    mapControllerPath: 'core/controllers/mapController.js',
+    spriteControllerPath: 'core/controllers/spriteController.js'    
 }
 
 /**
@@ -48,7 +64,7 @@ window.onload = () => {
      * Ambos controladores se almacenan en `contextInstance` para su acceso global.
      */
     const canvasController = new CanvasController(); // Dimensiones del canvas
-    canvasController.createCanvas('main', 4080, 2000);
+    canvasController.createCanvas('main', window.innerWidth, window.innerHeight);
     canvasController.getCanvas('main').create();
     
     const mapController = new MapController(canvasController); // Controlador de mapa que usa el canvas
@@ -75,7 +91,14 @@ window.onload = () => {
      * asegurando que todos los elementos estén preparados y configurados antes de comenzar.
      */
     const startInstance = new Start();
+    window.addEventListener('resize', function () {
+        contextInstance.getKey('mapController').resizeWindow()
+    });
 
+    document.addEventListener('fullscreenchange', function () {
+        console.log('Cambio de estado de pantalla completa detectado.');
+        onResizeOrFullscreen();
+    });
 };
 
 /**
@@ -85,8 +108,6 @@ window.onload = () => {
  * configurando una función que se ejecuta cuando se presiona la tecla "L".
  */
 
-import { Map } from "./core/objects/map.js";
-import { Tile } from "./core/objects/tile.js";
 
 keyboardController.onKeyPress("L", () => {
     contextInstance.getKey("mapController")

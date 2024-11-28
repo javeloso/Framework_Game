@@ -1,6 +1,6 @@
 import contextInstance from "../core/globalContext.js";
-import { CharacterController } from "../controllers/characterController.js";
-import { drawableObject } from "./drawableObject.js";
+import { CharacterController } from "../core/controllers/characterController.js";
+import { drawableObject } from "../core/model/drawableObject.js";
 
 export class test extends drawableObject {
     /**

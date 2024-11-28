@@ -6,9 +6,10 @@
 
 //Utilizar la clase map para guardar los tiles y comprobar si se puede mover a una posición.
 
-import contextInstance from "../core/globalContext.js";
-import { Map } from "../core/objects/map.js";
-import { Tile } from "../core/objects/tile.js";
+import contextInstance from "../globalContext.js";
+import { Map } from "../model/map.js";
+import { Tile } from "../model/tile.js";
+
 
 let instance = null;
 
@@ -160,6 +161,19 @@ class MapController {
 
   getWidth() {
     return this.dataMap.getWidth();
+  }
+
+  resizeWindow() {
+    const canvas = contextInstance.getKey("canvasController").getCanvas("main");
+    const ctx = contextInstance.getKey("canvasController").getContext("main");
+    canvas.setWidth(window.innerWidth);
+    canvas.setHeight(window.innerHeight);
+    this.draw(ctx);
+    this.imageData = ctx.getImageData(0, 0, auxCanvas.width, auxCanvas.height);
+    contextInstance
+      .getKey("canvasController")
+      .getContext("main")
+      .putImageData(this.imageData, 0, 0);
   }
 
   /**

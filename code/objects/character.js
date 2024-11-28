@@ -1,6 +1,6 @@
-import { drawableObject } from "./drawableObject";
-import { CharacterController } from "../controllers/characterController";
 import contextInstance from "../core/globalContext";
+import { drawableObject } from contextInstance.getKey("drawableObjectModelPath");
+import { CharacterController } from contextInstance.getKey("characterControllerPath");
 
 class Character extends drawableObject {
     constructor(poxX, posY){

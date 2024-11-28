@@ -1,6 +1,6 @@
+import contextInstance from "../globalContext.js";
 import keyboardController from "../controllers/keyboardController.js";
 import { SpriteController } from "../controllers/spriteController.js";
-import contextInstance from "../core/globalContext.js";
 
 export class CharacterController {
   /**

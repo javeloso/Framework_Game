@@ -1,4 +1,5 @@
-import { Canvas } from "../core/model/canvas.js";
+import contextInstance from "../globalContext.js";
+import { Canvas } from "../model/canvas.js";
 
 /**
  * Clase CanvasController
