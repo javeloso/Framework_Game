@@ -7,6 +7,7 @@
 //Utilizar la clase map para guardar los tiles y comprobar si se puede mover a una posición.
 
 import contextInstance from "../globalContext.js";
+import CanvasController from "./canvasController.js";
 import { Map } from "../model/map.js";
 import { Tile } from "../model/tile.js";
 
@@ -14,19 +15,19 @@ import { Tile } from "../model/tile.js";
 let instance = null;
 
 class MapController {
-  /**
-   * Constructor de MapController
-   * @param {Object} canvasController - El controlador del canvas para poder acceder a su contexto.
-   */
-  constructor(canvasController) {
+  constructor() {
     if (!instance) {
-      this.canvasController = canvasController;
-      this.ctx = this.canvasController.ctx;
+      CanvasController
+      this.ctx = CanvasController.ctx;
       instance = this;
     }
     return instance;
   }
 
+  /**
+   * Infla el mapa en función de la estructura origen de los datos.
+   * Utiliza varios métodos adaptador para inflar el mapa
+   */
   async inflateMap() {
     const hasChunks = this.map.layers.some((layer) => layer.chunks);
 
@@ -40,9 +41,7 @@ class MapController {
   }
 
   /**
-   * Infla el mapa, procesando las capas de tipo tilelayer y extrayendo los datos de cada tile.
-   * Asocia cada tile con su respectiva posición en el mapa y las coordenadas en el tileset.
-   * Los tiles se almacenan en dataMap para su posterior uso.
+   * Método adaptador para inflar un mapa con estructura de "chunks".
    */
   async inflateInfiniteMap() {
     const tileSize = this.map.tilewidth;
@@ -105,6 +104,9 @@ class MapController {
     });
   }
 
+  /**
+   * Método adaptador para inflar un mapa con estructura de "mapa fijo".
+   */
   async inflateFixMap() {
     const tileSize = this.map.tilewidth;
     const tilesPerRow = this.tileset.width / tileSize;
@@ -138,38 +140,75 @@ class MapController {
     });
   }
 
+  /**
+   * Dibuja el mapa en el canvas.
+   * @param {CanvasRenderingContext2D} ctx - Contexto 2D del canvas.
+   */
   draw(ctx) {
     this.dataMap.draw(ctx);
-    console.log("Mapa dibujado");
   }
 
+  /**
+   * Dibuja un tile en el canvas.
+   * @param {CanvasRenderingContext2D} ctx - Contexto 2D del canvas.
+   * @param {number} X - Coordenada X del tile.
+   * @param {number} Y - Coordenada Y del tile.
+   */
   drawTile(ctx, X, Y) {
     this.dataMap.drawTile(ctx, X, Y);
   }
 
+  /**
+   * Dibuja la parte `over` de un tile en el canvas.
+   * @param {CanvasRenderingContext2D} ctx - Contexto 2D del canvas.
+   * @param {number} X - Coordenada X del tile.
+   * @param {number} Y - Coordenada Y del tile.
+   */
   drawOver(ctx, X, Y) {
     this.dataMap.drawOver(ctx, X, Y);
   }
 
+  /**
+   * Comprueba si una posición es transitable.
+   * @param {number} X - Coordenada X.
+   * @param {number} Y - Coordenada Y.
+   * @returns {boolean} - `true` si la posición es transitable, `false` en caso contrario.
+   */
   isTileWalkable(X, Y) {
     return this.dataMap.isTileWalkable(X, Y);
   }
 
+  /**
+   * Devuelve el ancho del mapa en píxeles.
+   * @returns {number} - Ancho del mapa.
+   */
   getHeight() {
     return this.dataMap.getHeight();
   }
 
+  /**
+   * Devuelve el alto del mapa en píxeles.
+   * @returns {number} - Alto del mapa.
+   */
   getWidth() {
     return this.dataMap.getWidth();
   }
 
   resizeWindow() {
-    const canvas = contextInstance.getKey("canvasController").getCanvas("main");
+    const canvas = [contextInstance.getKey("canvasController").getCanvas("main"),
+      contextInstance.getKey("canvasController").getCanvas("events"),
+      contextInstance.getKey("canvasController").getCanvas("interface")
+      ];
     const ctx = contextInstance.getKey("canvasController").getContext("main");
-    canvas.setWidth(window.innerWidth);
-    canvas.setHeight(window.innerHeight);
+
+
+    canvas.forEach((canvas) => {
+      canvas.setWidth(window.innerWidth);
+      canvas.setHeight(window.innerHeight);
+    });
+
     this.draw(ctx);
-    this.imageData = ctx.getImageData(0, 0, auxCanvas.width, auxCanvas.height);
+    // this.imageData = ctx.getImageData(0, 0, auxCanvas.width, auxCanvas.height);
     contextInstance
       .getKey("canvasController")
       .getContext("main")

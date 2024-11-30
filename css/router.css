@@ -4,3 +4,15 @@ body{
     margin: 0;
     padding: 0;
 }
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none; /* Esto asegura que los eventos de mouse pasen al canvas más bajo */
+    z-index: 1; /* Puedes ajustar el z-index si necesitas cambiar el orden */
+}
+
+canvas:first-of-type {
+    pointer-events: auto; /* Solo el canvas más bajo manejará eventos por defecto */
+}

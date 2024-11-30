@@ -20,7 +20,8 @@ import { Start } from "./start.js";
  */
 
 const Vars = {
-    scale: 2, // Factor de escala de los gráficos en el juego
+    // Escala de todos los gráficos del juego
+    scale: 3,
 }
 
 const Paths = {
@@ -57,49 +58,68 @@ const Paths = {
 window.onload = () => {
 
     /**
-     * Inicialización del Canvas y Mapa
-     * 
-     * Crea una instancia de `CanvasController` con el tamaño especificado para el canvas 
-     * y una instancia de `MapController` que utiliza el canvas para la renderización.
-     * Ambos controladores se almacenan en `contextInstance` para su acceso global.
+     * Instancia de CanvasController
+     * Vamos a crear tres Canvas, utilizando el CanvasController para gestionarlos.
+     * También vamos a añadirlos al DOM con el metodo Create de cada Canvas.
      */
-    const canvasController = new CanvasController(); // Dimensiones del canvas
+    const canvasController = new CanvasController();
     canvasController.createCanvas('main', window.innerWidth, window.innerHeight);
+    canvasController.createCanvas('interface', window.innerWidth, window.innerHeight);
+    canvasController.createCanvas('events', window.innerWidth, window.innerHeight);
     canvasController.getCanvas('main').create();
-    
-    const mapController = new MapController(canvasController); // Controlador de mapa que usa el canvas
+    canvasController.getCanvas('events').create();
+    canvasController.getCanvas('interface').create();
 
+    // Añadimos el canvasController al contexto global
+    //TODO que todas las clases accedan a la clase canvasController y no al contexto
     contextInstance.setKey('canvasController', canvasController);
 
-    contextInstance.setKey('mapController', mapController);
-    contextInstance.setKey('relativeMapPosition', { x: 0, y: 0 });
+
     
-    // Asigna las variables globales en `Vars` al contexto global `contextInstance`
+    /**
+     * Instancia de MapController
+     * Vamos a crear una instancia de MapController, que se encargará de gestionar el mapa del juego.
+     */    
+    const mapController = new MapController(canvasController);
+
+    // Añadimos el mapController al contexto global
+    //TODO que todas las clases accedan a la clase mapController y no al contexto
+    contextInstance.setKey('mapController', mapController);
+
+    /**
+     * Añadimos todo al contexto global
+     * La posicion relativa del mapa se utiliza para mover el mapa en la pantalla
+     */
+    contextInstance.setKey('relativeMapPosition', { x: 0, y: 0 });
     for (const varName in Vars) {
         contextInstance.setKey(varName, Vars[varName]);
     }
-
-    // Asigna las rutas definidas en `Paths` al contexto global `contextInstance`
     for (const path in Paths) {
         contextInstance.setKey(path, Paths[path]);
     }
 
     /**
      * Instancia de Start
-     * 
-     * Crea una instancia de la clase `Start`, que gestiona todas las operaciones iniciales del juego,
-     * asegurando que todos los elementos estén preparados y configurados antes de comenzar.
+     * Inicializa el juego llamando a la clase `Start`.
      */
     const startInstance = new Start();
+
+    /**
+     * Evento `resize` y `fullscreenchange`
+     * 
+     * Estos eventos se ejecutan cuando la ventana cambia de tamaño o entra/sale del modo pantalla completa.
+     * Llama a la función `onResizeOrFullscreen` para ajustar el tamaño del canvas.
+     */
     window.addEventListener('resize', function () {
         contextInstance.getKey('mapController').resizeWindow()
     });
-
     document.addEventListener('fullscreenchange', function () {
         console.log('Cambio de estado de pantalla completa detectado.');
         onResizeOrFullscreen();
     });
 };
+
+//-------------------------------------PRUEBAS-------------------------------------------
 
 /**
  * Prueba de teclado

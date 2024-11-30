@@ -1,4 +1,3 @@
-import contextInstance from "../globalContext.js";
 import { Canvas } from "../model/canvas.js";
 
 /**
@@ -14,21 +13,28 @@ let instance = null;
 class CanvasController {
     /**
      * Constructor
-     * @param {number} width - Ancho en píxeles del canvas (por defecto 1000).
-     * @param {number} height - Alto en píxeles del canvas (por defecto 1000).
-     * 
-     * Crea y configura el elemento canvas si aún no existe una instancia. Ajusta el tamaño del canvas
-     * en función del ratio de píxeles del dispositivo para asegurar gráficos claros y nítidos en pantallas de alta resolución.
+     * @param {number} width - Ancho en píxeles del canvas.
+     * @param {number} height - Alto en píxeles del canvas.
      */
     constructor() {
         if (!instance) {
-
+            // Inicializa la lista de canvas
             this.canvasList = {}
             instance = this;
         }
         return instance;
     }
 
+    /**
+     * createCanvas
+     * @param {string} name - Nombre del canvas.
+     * @param {number} width - Ancho en píxeles del canvas.
+     * @param {number} height - Alto en píxeles del canvas.
+     * @returns {Canvas} - Objeto Canvas creado.
+     * 
+     * Crea un nuevo canvas con el nombre especificado y lo añade a la lista de canvas.
+     * Si ya existe un canvas con el mismo nombre, lanza un error.
+     */
     createCanvas(name, width, height) {
         const canvas = new Canvas(width, height);
         try {
@@ -39,6 +45,14 @@ class CanvasController {
         }
     }
 
+    /**
+     * getCanvas
+     * @param {string} name - Nombre del canvas.
+     * @returns {Canvas} - Objeto Canvas.
+     * 
+     * Obtiene un canvas de la lista de canvas por su nombre.
+     * Si no existe un canvas con el nombre especificado, lanza un error.
+     */
     getCanvas(name) {
         if ((name in this.canvasList)) {
             return this.canvasList[name];
@@ -46,6 +60,14 @@ class CanvasController {
         throw new Error(`Error al obtener la clave '${name}' en la lista de lienzos: clave no definida.`);    
     }
 
+    /**
+     * getContext
+     * @param {string} name - Nombre del canvas.
+     * @returns {CanvasRenderingContext2D} - Contexto 2D del canvas.
+     * 
+     * Obtiene el contexto 2D de un canvas de la lista de canvas por su nombre.
+     * Si no existe un canvas con el nombre especificado, lanza un error.
+     */
     getContext(name) {
         if ((name in this.canvasList)) {
             return this.canvasList[name].getContext();
@@ -53,43 +75,39 @@ class CanvasController {
         throw new Error(`Error al obtener la clave '${name}' en la lista de lienzos: clave no definida.`);    
     }
 
+    /**
+     * getHeight
+     * @param {string} name - Nombre del canvas.
+     * @returns {number} - Alto del canvas.
+     * 
+     * Obtiene el alto de un canvas de la lista de canvas por su nombre.
+     * Si no existe un canvas con el nombre especificado, lanza un error.
+     */
     getHeight(name) {
         return this.canvasList[name].getHeight();
     }
 
+    /**
+     * getWidth
+     * @param {string} name - Nombre del canvas.
+     * @returns {number} - Ancho del canvas.
+     * 
+     * Obtiene el ancho de un canvas de la lista de canvas por su nombre.
+     * Si no existe un canvas con el nombre especificado, lanza un error.
+     */
     getWidth(name) {
         return this.canvasList[name].getWidth();
     }
-    
-
-
-
 
     /**
      * clear
+     * @param {string} name - Nombre del canvas.
      * 
-     * Limpia el canvas borrando todo el contenido renderizado.
+     * Limpia el canvas especificado.
+     * Si no existe un canvas con el nombre especificado, lanza un error.
      */
     clear(name) {
         this.getContext(name).clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-
-    /**
-     * drawImage
-     * @param {HTMLImageElement} image - Imagen o spritesheet a dibujar.
-     * @param {number} sx - Coordenada x de origen en la imagen.
-     * @param {number} sy - Coordenada y de origen en la imagen.
-     * @param {number} sWidth - Ancho de la sección a recortar de la imagen.
-     * @param {number} sHeight - Alto de la sección a recortar de la imagen.
-     * @param {number} dx - Coordenada x en el canvas donde se dibujará la imagen.
-     * @param {number} dy - Coordenada y en el canvas donde se dibujará la imagen.
-     * @param {number} dWidth - Ancho para escalar la imagen en el canvas.
-     * @param {number} dHeight - Alto para escalar la imagen en el canvas.
-     * 
-     * Dibuja una sección de la imagen en el canvas en una posición específica y permite escalarla.
-     */
-    drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-        this.getContext(name).drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 }
 

@@ -18,13 +18,13 @@ export class Start {
      */
     constructor() {
         contextInstance.getKey("mapController")
-            .init("tm", "ts.png", 3)
+            .init("tm", "ts.png", contextInstance.getKey("scale"))
             .then(() => {
                 this.test();
             });
     }
 
-    /**d
+    /**
      * test
      * 
      * Crea una instancia de la clase `test` con posiciones iniciales `(15, 15)`. Llama al método `draw` 
@@ -36,7 +36,7 @@ export class Start {
      */
     test() {
         const testInstance = new test();
-        testInstance.setPosition(15, 15);
+        testInstance.setPosition(4, 4);
         contextInstance.setKey("character", testInstance);
     }
 
