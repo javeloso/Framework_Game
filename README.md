@@ -25,7 +25,7 @@ El framework está desarrollado completamente en JavaScript puro, lo que facilit
 ### **Instrucciones de Uso**
 1. Clona el repositorio.
 2. Navega al directorio del proyecto y ejecuta `index.html` en un navegador a través de un servidor como `Live Server` en VS Code para ver el juego en acción.
-3. Para empaquetar como aplicación de escritorio, asegúrate de tener **Electron** instalado y sigue la guía de configuración correspondiente.
+3. También está configurado para ser utilizado con **Electron** y así empaquetarlo en un entorno de escritorio.
 
 ---
 
