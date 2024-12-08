@@ -5,8 +5,6 @@ import { SpriteController } from "../controllers/spriteController.js";
 export class CharacterController {
   /**
    * Constructor
-   * @param {number} posX - Posición inicial en el eje X del personaje.
-   * @param {number} posY - Posición inicial en el eje Y del personaje.
    */
   constructor() {
     this.posX = -1;
@@ -14,10 +12,17 @@ export class CharacterController {
     this.lposX = -1;
     this.lposY = -1;
     this.direction = "down";
-    this.spriteController = null; // Se inicializa después
+    this.spriteController = null;
     this.setupControls();
   }
 
+  /**
+   * Establece la posición del personaje.
+   * @param {number} x - Posición X.
+   * @param {number} y - Posición Y.
+   * 
+   * Establece la posición del personaje en el mapa.
+   */ 
   setPosition(x, y) {
     this.posX = x;
     this.posY = y;
@@ -26,6 +31,10 @@ export class CharacterController {
   /**
    * Inicializa el sprite del controlador de personaje.
    * @param {string} name - Nombre del archivo del sprite.
+   * @param {number} width - Ancho de cada sprite.
+   * @param {number} height - Alto de cada sprite.
+   * 
+   * Inicializa el controlador de sprites y carga el sprite del personaje.
    */
   async initSpriteController(name, width, height) {
     await this.setSpriteController(name, width, height);
@@ -81,7 +90,11 @@ export class CharacterController {
     this.draw();
   }
   
-
+  /**
+   * Actualiza la posición del canvas.
+   * TODO Este metodo se va a tener que ir de aquí, ya que es el encargado de la camara
+   * y eso no es responsabilidad de este controlador
+   */
   updateCanvasPosition() {
     const canvasController = contextInstance.getKey("canvasController");
     const mapController = contextInstance.getKey("mapController");
@@ -123,12 +136,9 @@ export class CharacterController {
     }
   }
   
-  
-  
-  
-
   /**
    * Dibuja el personaje en el canvas.
+   * TODO Este metodo dibujará el personaje en su propia layer
    */
   draw() {
     console.log("drawing");
@@ -161,7 +171,6 @@ export class CharacterController {
 
   /**
    * Obtiene el sprite correspondiente a la dirección actual.
-   * @returns {Image|null}
    */
   getSprite() {
     if (!this.spriteController) return null;
@@ -185,6 +194,9 @@ export class CharacterController {
    * @param {string} name - Nombre del archivo del sprite.
    * @param {number} width - Ancho de cada sprite.
    * @param {number} height - Alto de cada sprite.
+   * 
+   * TODO Este metodo se va a tener que ir de aquí
+   * no es responsabilidad de este controlador
    */
   async setSpriteController(name, width, height) {
     this.spriteController = new SpriteController(
@@ -197,6 +209,7 @@ export class CharacterController {
 
   /**
    * Obtiene las posiciones previas del tile.
+   * TODO, no se que hacer con esto
    */
   getPreviousTilePosition() {
     switch (this.direction) {
