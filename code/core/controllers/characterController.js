@@ -1,16 +1,22 @@
-import contextInstance from "../globalContext.js";
-import keyboardController from "../controllers/keyboardController.js";
 import { SpriteController } from "../controllers/spriteController.js";
+import { BaseController } from "../controllers/baseController.js";
 
-export class CharacterController {
+export class CharacterController extends BaseController {
   /**
    * Constructor
    */
   constructor() {
-    this.posX = -1;
-    this.posY = -1;
-    this.lposX = -1;
-    this.lposY = -1;
+    super();
+    this.posX = -1; // Pòsición X en el mapa
+    this.posY = -1; // Posición Y en el mapa
+
+    //TODO si voy a utilizar una layer para el personaje, no necesito estas variables
+    this.lposX = -1; // Posición X anterior utilizada para calcular el tile anterior
+    this.lposY = -1; // Posición Y anterior
+
+    this.dx = 0; // Desplazamiento de la posicion en X
+    this.dy = 0; // Desplazamiento de la posicion en Y
+
     this.direction = "down";
     this.spriteController = null;
     this.setupControls();
@@ -28,6 +34,8 @@ export class CharacterController {
     this.posY = y;
   }
 
+
+
   /**
    * Inicializa el sprite del controlador de personaje.
    * @param {string} name - Nombre del archivo del sprite.
@@ -44,10 +52,15 @@ export class CharacterController {
    * Configura los controles del teclado.
    */
   setupControls() {
-    keyboardController.onKeyPress("a", () => this.move("left", -1, 0));
-    keyboardController.onKeyPress("d", () => this.move("right", 1, 0));
-    keyboardController.onKeyPress("w", () => this.move("up", 0, -1));
-    keyboardController.onKeyPress("s", () => this.move("down", 0, 1));
+    // this.keyboardController.onKeyPress("a", () => this.move("left", -1, 0));
+    // this.keyboardController.onKeyPress("d", () => this.move("right", 1, 0));
+    // this.keyboardController.onKeyPress("w", () => this.move("up", 0, -1));
+    // this.keyboardController.onKeyPress("s", () => this.move("down", 0, 1));
+
+    this.keyboardController.onKeyPress("a", () => this.move("left", this.context.getKey("characterVelocity")*-1 , 0));
+    this.keyboardController.onKeyPress("d", () => this.move("right", this.context.getKey("characterVelocity"), 0));
+    this.keyboardController.onKeyPress("w", () => this.move("up", 0, this.context.getKey("characterVelocity")*-1));
+    this.keyboardController.onKeyPress("s", () => this.move("down", 0, this.context.getKey("characterVelocity")));
   }
 
   /**
@@ -57,12 +70,38 @@ export class CharacterController {
    * @param {number} deltaY - Cambio en Y.
    */
   move(newDirection, deltaX, deltaY) {
+    let auxPosX = this.posX;
+    let auxPosY = this.posY;
+    let auxdx = this.dx + deltaX;
+    let auxdy = this.dy + deltaY;
+  
+    const boxSize = this.context.getKey("boxSize");
+  
+    // Ajustar posición horizontal
+    if (auxdx >= boxSize) {
+      auxPosX += Math.floor(auxdx / boxSize);
+      auxdx %= boxSize; // Mantener el residuo dentro de los límites de boxSize
+    } else if (auxdx < 0) {
+      auxPosX += Math.floor(auxdx / boxSize);
+      auxdx = (auxdx % boxSize + boxSize) % boxSize; // Normalizar a valores positivos
+    }
+  
+    // Ajustar posición vertical
+    if (auxdy >= boxSize) {
+      auxPosY += Math.floor(auxdy / boxSize);
+      auxdy %= boxSize; // Mantener el residuo dentro de los límites de boxSize
+    } else if (auxdy < 0) {
+      auxPosY += Math.floor(auxdy / boxSize);
+      auxdy = (auxdy % boxSize + boxSize) % boxSize; // Normalizar a valores positivos
+    }
+  
+
     if (this.direction !== newDirection) {
       const [prevX, prevY] = this.getPreviousTilePosition();
-      contextInstance
+      this.context
         .getKey("mapController")
         .drawTile(
-          contextInstance
+          this.context
             .getKey("canvasController")
             .getCanvas("main")
             .getContext(),
@@ -75,65 +114,33 @@ export class CharacterController {
     this.lposX = this.posX;
     this.lposY = this.posY;
   
-    if (
-      contextInstance
-        .getKey("mapController")
-        .isTileWalkable(this.posX + deltaX, this.posY + deltaY)
-    ) {
-      this.posX += deltaX;
-      this.posY += deltaY;
+    let tileToCheckX = auxPosX;
+    let tileToCheckY = auxPosY;
   
-      // Llamamos a moveCanvas para ajustar la posición del mapa
-      this.updateCanvasPosition();
+    if (newDirection === "right" && auxdx > 0) {
+      tileToCheckX = auxPosX + 1;
+    } else if (newDirection === "left" && auxdx < 0) {
+      tileToCheckX = auxPosX - 1;
+    } else if (newDirection === "down" && auxdy > 0) {
+      tileToCheckY = auxPosY + 1;
+    } else if (newDirection === "up" && auxdy < 0) {
+      tileToCheckY = auxPosY - 1;
+    }
+  
+    // Comprobar si ambos tiles son transitables
+    const currentTileWalkable = this.context.getKey("mapController").isTileWalkable(auxPosX, auxPosY);
+    const additionalTileWalkable = this.context.getKey("mapController").isTileWalkable(tileToCheckX, tileToCheckY);
+  
+    if (currentTileWalkable && additionalTileWalkable) {
+      this.posX = auxPosX;
+      this.posY = auxPosY;
+      this.dx = auxdx;
+      this.dy = auxdy;
+      this.direction = newDirection; // Actualizar dirección
+      this.cameraController.updateCanvasPosition(this.posX, this.posY, this.dx, this.dy);
     }
   
     this.draw();
-  }
-  
-  /**
-   * Actualiza la posición del canvas.
-   * TODO Este metodo se va a tener que ir de aquí, ya que es el encargado de la camara
-   * y eso no es responsabilidad de este controlador
-   */
-  updateCanvasPosition() {
-    const canvasController = contextInstance.getKey("canvasController");
-    const mapController = contextInstance.getKey("mapController");
-  
-    const canvasWidth = canvasController.getCanvas("main").width;
-    const canvasHeight = canvasController.getCanvas("main").height;
-    const tileSize = contextInstance.getKey("boxSize") * contextInstance.getKey("scale");
-  
-    const centerX = Math.floor(canvasWidth / 2);
-    const centerY = Math.floor(canvasHeight / 2);
-  
-    const relativeMapPosition = contextInstance.getKey("relativeMapPosition");
-  
-    // Calculamos la nueva posición relativa del mapa
-    const targetX =
-      centerX - this.posX * tileSize - tileSize / 2; // Centra al personaje
-    const targetY =
-      centerY - this.posY * tileSize - tileSize / 2; // Centra al personaje
-  
-    // Calculamos la diferencia entre la posición actual y el objetivo
-    const dx = targetX - relativeMapPosition.x;
-    const dy = targetY - relativeMapPosition.y;
-  
-    // Verificamos si el mapa puede moverse
-    const mapWidth = mapController.getWidth() * tileSize;
-    const mapHeight = mapController.getHeight() * tileSize;
-  
-    const maxOffsetX = Math.min(0, canvasWidth - mapWidth);
-    const maxOffsetY = Math.min(0, canvasHeight - mapHeight);
-  
-    // Aseguramos que no se salga de los límites del mapa
-    if (relativeMapPosition.x + dx >= maxOffsetX && relativeMapPosition.x + dx <= 0) {
-      contextInstance.getKey("mapController").moveCanvas(dx, 0);
-      relativeMapPosition.x += dx;
-    }
-    if (relativeMapPosition.y + dy >= maxOffsetY && relativeMapPosition.y + dy <= 0) {
-      contextInstance.getKey("mapController").moveCanvas(0, dy);
-      relativeMapPosition.y += dy;
-    }
   }
   
   /**
@@ -141,32 +148,31 @@ export class CharacterController {
    * TODO Este metodo dibujará el personaje en su propia layer
    */
   draw() {
-    console.log("drawing");
     if (!this.spriteController) return;
 
     const sprite = this.getSprite();
     if (!sprite) return;
 
-    const ctx = contextInstance
+    const ctx = this.context
       .getKey("canvasController")
       .getCanvas("main")
       .getContext();
     const { posX, posY, lposX, lposY } = this.getPosition();
 
-    contextInstance.getKey("mapController").drawTile(ctx, lposX, lposY);
+    this.context.getKey("mapController").drawTile(ctx, lposX, lposY);
     ctx.drawImage(
       sprite.image,
       sprite.sx,
       sprite.sy,
       sprite.width,
       sprite.height,
-      posX * contextInstance.getKey("boxSize") * contextInstance.getKey("scale") + contextInstance.getKey("relativeMapPosition").x,
-      posY * contextInstance.getKey("boxSize") * contextInstance.getKey("scale") + contextInstance.getKey("relativeMapPosition").y,
-      contextInstance.getKey("boxSize") * contextInstance.getKey("scale"),
-      contextInstance.getKey("boxSize") * contextInstance.getKey("scale")
+      posX * this.context.getKey("boxSize") * this.context.getKey("scale") + this.context.getKey("relativeMapPosition").x + (this.dx * this.context.getKey("scale")),
+      posY * this.context.getKey("boxSize") * this.context.getKey("scale") + this.context.getKey("relativeMapPosition").y + (this.dy * this.context.getKey("scale")),
+      this.context.getKey("boxSize") * this.context.getKey("scale"),
+      this.context.getKey("boxSize") * this.context.getKey("scale")
     );
 
-    contextInstance.getKey("mapController").drawOver(ctx, posX, posY);
+    this.context.getKey("mapController").drawOver(ctx, posX, posY);
   }
 
   /**
@@ -200,7 +206,7 @@ export class CharacterController {
    */
   async setSpriteController(name, width, height) {
     this.spriteController = new SpriteController(
-      contextInstance.getKey("spritePath") + name + ".png",
+      this.context.getKey("spritePath") + name + ".png",
       width,
       height
     );

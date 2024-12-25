@@ -68,7 +68,6 @@ export class Tile {
       );
     }
     this.drawOver(ctx);
-    console.log("tileDrawn");
   }
 
   drawOver(ctx) {

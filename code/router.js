@@ -21,7 +21,8 @@ import { Start } from "./start.js";
 
 const Vars = {
     // Escala de todos los gráficos del juego
-    scale: 3,
+    scale: 4,
+    characterVelocity: 16,
 }
 
 const Paths = {
@@ -114,7 +115,6 @@ window.onload = () => {
         contextInstance.getKey('mapController').resizeWindow()
     });
     document.addEventListener('fullscreenchange', function () {
-        console.log('Cambio de estado de pantalla completa detectado.');
         onResizeOrFullscreen();
     });
 };
